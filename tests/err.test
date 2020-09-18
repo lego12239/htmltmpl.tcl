@@ -1,0 +1,77 @@
+lappend auto_path [pwd]/../
+package require tcltest
+package require htmltmpl
+
+tcltest::test err-1.0 {
+	compile err: unknown tag
+} -body {
+	htmltmpl::compile_str "<TMPL_UNKNOWN NAME=v1>"
+} -returnCodes error -result "at line 1: Unknown tag 'TMPL_UNKNOWN'"
+
+tcltest::test err-2.0 {
+	compile err: repeated tag attribute
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR NAME=v1 NAME=v2>"
+} -returnCodes error -result "at line 1: tag attribute 'NAME' already set"
+
+tcltest::test err-3.0 {
+	compile err: something instead of attribute name
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR =v1>"
+} -returnCodes error -result "at line 1: want tag attribute name, but got '='#3"
+
+tcltest::test err-3.1 {
+	compile err: something instead of attribute name
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR \"NAME\"=v1>"
+} -returnCodes error -result "at line 1: want tag attribute name, but got 'NAME'#4"
+
+tcltest::test err-4.0 {
+	compile err: something instead of equal sign
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR NAME v1>"
+} -returnCodes error -result "at line 1: want '=' char, but got 'v1'#2"
+
+tcltest::test err-4.1 {
+	compile err: something instead of equal sign
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR NAME \"v1\">"
+} -returnCodes error -result "at line 1: want '=' char, but got 'v1'#4"
+
+tcltest::test err-4.2 {
+	compile err: something instead of equal sign
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR NAME>"
+} -returnCodes error -result "at line 1: want '=' char, but got '>'#5"
+
+tcltest::test err-5.0 {
+	compile err: something instead of a value
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR NAME==>"
+} -returnCodes error -result "at line 1: want tag attribute value, but got '='#3"
+
+tcltest::test err-5.1 {
+	compile err: something instead of a value
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR NAME=>"
+} -returnCodes error -result "at line 1: want tag attribute value, but got '>'#5"
+
+tcltest::test err-6.0 {
+	compile err: wrong token inside TMPL_VAR
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR <=v1>"
+} -returnCodes error -result "at line 1: want tag attribute name, but got '<=v1>'"
+
+tcltest::test err-6.1 {
+	compile err: wrong token inside TMPL_VAR
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR NAME*v1>"
+} -returnCodes error -result "at line 1: want '=' char, but got '*v1>'"
+
+tcltest::test err-6.2 {
+	compile err: wrong token inside TMPL_VAR
+} -body {
+	htmltmpl::compile_str "<TMPL_VAR NAME=*>"
+} -returnCodes error -result "at line 1: want tag attribute value, but got '*>'"
+
+tcltest::cleanupTests
