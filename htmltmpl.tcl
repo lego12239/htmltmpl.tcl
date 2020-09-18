@@ -127,7 +127,7 @@ proc _parse {_ctx} {
 				switch $tok {
 					2 {
 						set tag_aname [dict get $ctx tok_str]
-						if {[dict exists $tmpl attrs $tag_aname]} {
+						if {[dict exists $attrs $tag_aname]} {
 							error "tag attribute '$tag_aname' set twice at\
 							  line [dict get $ctx lineno]" "" HTMLTMPLERR
 						}
