@@ -348,12 +348,15 @@ proc _apply {chunks data} {
 proc _tmpl_var_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
 
-	dict lappend tmpl chunks [list "TMPL_VAR" $attrs]
+	if {![dict exists $attrs NAME]} {
+		error "TMPL_VAR: NAME is missed" "" HTMLTMPLERR
+	}
+	dict lappend tmpl chunks [list "TMPL_VAR" [dict get $attrs NAME]]
 }
 dict set tags TMPL_VAR parse _tmpl_var_parse
 
 proc _tmpl_var_apply {chunk data} {
-	set name [dict get [lindex $chunk 1] NAME]
+	set name [lindex $chunk 1]
 	if {[dict exists $data $name]} {
 		return [dict get $data $name]
 	}

@@ -6,67 +6,67 @@ tcltest::test tmpl_var-1.0 {
 	TMPL_VAR single
 } -body {
 	htmltmpl::compile_str "<TMPL_VAR NAME=v1>"
-} -result {chunks {{TMPL_VAR {NAME v1}}}}
+} -result {chunks {{TMPL_VAR v1}}}
 
 tcltest::test tmpl_var-1.1 {
 	TMPL_VAR single(with spaces)
 } -body {
 	htmltmpl::compile_str "<TMPL_VAR  NAME =   v1    >"
-} -result {chunks {{TMPL_VAR {NAME v1}}}}
+} -result {chunks {{TMPL_VAR v1}}}
 
 tcltest::test tmpl_var-1.2 {
 	TMPL_VAR single(surrounded with spaces)
 } -body {
 	htmltmpl::compile_str " <TMPL_VAR  NAME =   v1    > "
-} -result {chunks {{TEXT { }} {TMPL_VAR {NAME v1}} {TEXT { }}}}
+} -result {chunks {{TEXT { }} {TMPL_VAR v1} {TEXT { }}}}
 
 tcltest::test tmpl_var-2.0 {
 	TMPL_VAR with text prepended
 } -body {
 	htmltmpl::compile_str "some text<TMPL_VAR NAME=v1>"
-} -result {chunks {{TEXT {some text}} {TMPL_VAR {NAME v1}}}}
+} -result {chunks {{TEXT {some text}} {TMPL_VAR v1}}}
 
 tcltest::test tmpl_var-2.1 {
 	TMPL_VAR with text prepended(with space)
 } -body {
 	htmltmpl::compile_str "some text <TMPL_VAR NAME=v1>"
-} -result {chunks {{TEXT {some text }} {TMPL_VAR {NAME v1}}}}
+} -result {chunks {{TEXT {some text }} {TMPL_VAR v1}}}
 
 tcltest::test tmpl_var-2.2 {
 	TMPL_VAR with text prepended(with spaces)
 } -body {
 	htmltmpl::compile_str "some text  <TMPL_VAR NAME=v1>"
-} -result {chunks {{TEXT {some text  }} {TMPL_VAR {NAME v1}}}}
+} -result {chunks {{TEXT {some text  }} {TMPL_VAR v1}}}
 
 tcltest::test tmpl_var-3.0 {
 	TMPL_VAR with text appended
 } -body {
 	htmltmpl::compile_str "<TMPL_VAR NAME=v1>some text"
-} -result {chunks {{TMPL_VAR {NAME v1}} {TEXT {some text}}}}
+} -result {chunks {{TMPL_VAR v1} {TEXT {some text}}}}
 
 tcltest::test tmpl_var-3.1 {
 	TMPL_VAR with text appended(with space)
 } -body {
 	htmltmpl::compile_str "<TMPL_VAR NAME=v1> some text"
-} -result {chunks {{TMPL_VAR {NAME v1}} {TEXT { some text}}}}
+} -result {chunks {{TMPL_VAR v1} {TEXT { some text}}}}
 
 tcltest::test tmpl_var-3.2 {
 	TMPL_VAR with text appended(with spaces)
 } -body {
 	htmltmpl::compile_str "<TMPL_VAR NAME=v1> some text "
-} -result {chunks {{TMPL_VAR {NAME v1}} {TEXT { some text }}}}
+} -result {chunks {{TMPL_VAR v1} {TEXT { some text }}}}
 
 tcltest::test tmpl_var-3.3 {
 	TMPL_VAR with text appended(with spaces)
 } -body {
 	htmltmpl::compile_str "<TMPL_VAR NAME=v1>  some text "
-} -result {chunks {{TMPL_VAR {NAME v1}} {TEXT {  some text }}}}
+} -result {chunks {{TMPL_VAR v1} {TEXT {  some text }}}}
 
 tcltest::test tmpl_var-4.0 {
 	TMPL_VAR on several lines
 } -body {
 	htmltmpl::compile_str "<TMPL_VAR\nNAME\n=\nv1\n>"
-} -result {chunks {{TMPL_VAR {NAME v1}}}}
+} -result {chunks {{TMPL_VAR v1}}}
 
 tcltest::test tmpl_var-5.0 {
 	TMPL_VAR apply with no var in data
