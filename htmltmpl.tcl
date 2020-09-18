@@ -87,7 +87,10 @@ proc _compile {ctx_init} {
 	  state 0]
 	set ctx [dict merge $ctx $ctx_init]
 	set err ""
-	set tmpl [_parse ctx]
+	if {[catch {_parse ctx} tmpl]} {
+		set linfo "at line [dict get $ctx lineno]: "
+		error "${linfo}$tmpl" "${linfo}$::errorInfo" $::errorCode
+	}
 	return $tmpl
 }
 
@@ -114,8 +117,7 @@ proc _parse {_ctx} {
 					1 {
 						set tag_name [dict get $ctx tok_str]
 						if {![dict exists $tags $tag_name]} {
-							error "Unknown tag '$tag_name' at line\
-							  [dict get $ctx lineno]"
+							error "Unknown tag '$tag_name'"
 						}
 						set attrs {}
 						dict set ctx state 1
@@ -128,8 +130,8 @@ proc _parse {_ctx} {
 					2 {
 						set tag_aname [dict get $ctx tok_str]
 						if {[dict exists $attrs $tag_aname]} {
-							error "tag attribute '$tag_aname' set twice at\
-							  line [dict get $ctx lineno]" "" HTMLTMPLERR
+							error "tag attribute '$tag_aname' already set" ""\
+							  HTMLTMPLERR
 						}
 						dict set ctx state 2
 					}
@@ -139,8 +141,7 @@ proc _parse {_ctx} {
 					}
 					default {
 						error "[dict get $errmsg_wrongtok 1], but got\
-						  '[dict get $ctx tok_str]'#$tok at line \
-						  [dict get $ctx lineno]" "" HTMLTMPLERR
+						  '[dict get $ctx tok_str]'#$tok" "" HTMLTMPLERR
 					}
 				}
 			}
@@ -152,8 +153,7 @@ proc _parse {_ctx} {
 					}
 					default {
 						error "[dict get $errmsg_wrongtok 2], but got\
-						  '[dict get $ctx tok_str]'#$tok at line \
-						  [dict get $ctx lineno]" "" HTMLTMPLERR
+						  '[dict get $ctx tok_str]'#$tok" "" HTMLTMPLERR
 					}
 				}
 			}
@@ -168,8 +168,7 @@ proc _parse {_ctx} {
 					}
 					default {
 						error "[dict get $errmsg_wrongtok 3], but got\
-						  '[dict get $ctx tok_str]'#$tok at line \
-						  [dict get $ctx lineno]" "" HTMLTMPLERR
+						  '[dict get $ctx tok_str]'#$tok" "" HTMLTMPLERR
 					}
 				}
 			}
@@ -177,7 +176,7 @@ proc _parse {_ctx} {
 	}
 	if {$tok == -2} {
 		error "[dict get $errmsg_wrongtok [dict get $ctx state]], but got\
-		  '[dict get $ctx buf]' at line [dict get $ctx lineno]" "" HTMLTMPLERR
+		  '[dict get $ctx buf]'" "" HTMLTMPLERR
 	}
 	return $tmpl
 }
