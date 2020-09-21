@@ -99,6 +99,8 @@ proc _parse {_ctx} {
 	variable tags
 	set attrs {}
 	set tmpl [dict create\
+	  _priv {}\
+	  _chunks_stack {}\
 	  chunks {}]
 	set errmsg_wrongtok {
 	  1 "want tag attribute name"
@@ -178,6 +180,8 @@ proc _parse {_ctx} {
 		error "[dict get $errmsg_wrongtok [dict get $ctx state]], but got\
 		  '[dict get $ctx buf]'" "" HTMLTMPLERR
 	}
+	dict unset tmpl _priv
+	dict unset tmpl _chunks_stack
 	return $tmpl
 }
 
@@ -362,6 +366,55 @@ proc _tmpl_var_apply {chunk data} {
 	return ""
 }
 dict set tags TMPL_VAR apply _tmpl_var_apply
+
+######################################################################
+# TMPL_LOOP handlers
+######################################################################
+proc _tmpl_loop_parse {_tmpl attrs} {
+	upvar $_tmpl tmpl
+
+	if {![dict exists $attrs NAME]} {
+		error "TMPL_LOOP: NAME is missed" "" HTMLTMPLERR
+	}
+	dict lappend tmpl _chunks_stack [dict get $tmpl chunks]
+	dict set tmpl chunks {}
+	dict lappend tmpl _priv [list "TMPL_LOOP" $attrs]
+}
+dict set tags TMPL_LOOP parse _tmpl_loop_parse
+
+proc _tmpl_loop_end_parse {_tmpl attrs} {
+	upvar $_tmpl tmpl
+
+	set priv [lindex [dict get $tmpl _priv] end]
+	dict set tmpl _priv [lrange [dict get $tmpl _priv] 0 end-1]
+	if {[lindex $priv 0] ne "TMPL_LOOP"} {
+		error "internal error(TMPL_LOOP: _priv corrupted: $priv)" "" HTMLTMPLERR
+	}
+	set attrs [lindex $priv 1]
+
+	set chunks [dict get $tmpl chunks]
+	dict set tmpl chunks [lindex [dict get $tmpl _chunks_stack] end]
+	dict set tmpl _chunks_stack [lrange [dict get $tmpl _chunks_stack] 0 end-1]
+
+	dict lappend tmpl chunks [list "TMPL_LOOP" [dict get $attrs NAME] $chunks]
+}
+dict set tags /TMPL_LOOP parse _tmpl_loop_end_parse
+
+proc _tmpl_loop_apply {chunk data} {
+	set str ""
+
+	set name [lindex $chunk 1]
+	if {![dict exists $data $name]} {
+		return ""
+	}
+	set ldata [dict get $data $name]
+	set lchunk [lindex $chunk 2]
+	foreach d $ldata {
+		append str [_apply $lchunk $d]
+	}
+	return $str
+}
+dict set tags TMPL_LOOP apply _tmpl_loop_apply
 
 }
 
