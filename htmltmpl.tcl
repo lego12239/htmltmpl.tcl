@@ -407,26 +407,21 @@ proc _tmpl_loop_parse {_tmpl attrs} {
 	if {![dict exists $attrs NAME]} {
 		error "TMPL_LOOP: NAME is missed" "" HTMLTMPLERR
 	}
-	dict lappend tmpl _chunks_stack [dict get $tmpl chunks]
-	dict set tmpl chunks {}
-	dict lappend tmpl _priv [list "TMPL_LOOP" $attrs]
+	_push_chunks tmpl {}
+	_push_priv tmpl [list "TMPL_LOOP" $attrs]
 }
 dict set tags TMPL_LOOP parse _tmpl_loop_parse
 
 proc _tmpl_loop_end_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
 
-	set priv [lindex [dict get $tmpl _priv] end]
-	dict set tmpl _priv [lrange [dict get $tmpl _priv] 0 end-1]
+	set priv [_pop_priv tmpl]
 	if {[lindex $priv 0] ne "TMPL_LOOP"} {
 		error "internal error(TMPL_LOOP: _priv corrupted: $priv)" "" HTMLTMPLERR
 	}
 	set attrs [lindex $priv 1]
 
-	set chunks [dict get $tmpl chunks]
-	dict set tmpl chunks [lindex [dict get $tmpl _chunks_stack] end]
-	dict set tmpl _chunks_stack [lrange [dict get $tmpl _chunks_stack] 0 end-1]
-
+	set chunks [_pop_chunks tmpl]
 	dict lappend tmpl chunks [list "TMPL_LOOP" [dict get $attrs NAME] $chunks]
 }
 dict set tags /TMPL_LOOP parse _tmpl_loop_end_parse
