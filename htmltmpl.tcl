@@ -345,6 +345,23 @@ proc _apply {chunks data} {
 	return $str
 }
 
+# UTILS
+proc _push_chunks {_tmpl chunks} {
+	upvar $_tmpl tmpl
+
+	dict lappend tmpl _chunks_stack [dict get $tmpl chunks]
+	dict set tmpl chunks $chunks
+}
+
+proc _pop_chunks {_tmpl} {
+	upvar $_tmpl tmpl
+
+	set chunks [dict get $tmpl chunks]
+	dict set tmpl chunks [lindex [dict get $tmpl _chunks_stack] end]
+	dict set tmpl _chunks_stack [lrange [dict get $tmpl _chunks_stack] 0 end-1]
+	return $chunks
+}
+
 ######################################################################
 # TMPL_VAR handlers
 ######################################################################
