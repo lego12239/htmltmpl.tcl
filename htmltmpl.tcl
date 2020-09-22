@@ -362,6 +362,20 @@ proc _pop_chunks {_tmpl} {
 	return $chunks
 }
 
+proc _push_priv {_tmpl priv} {
+	upvar $_tmpl tmpl
+
+	dict lappend tmpl _priv $priv
+}
+
+proc _pop_priv {_tmpl} {
+	upvar $_tmpl tmpl
+
+	set priv [lindex [dict get $tmpl _priv] end]
+	dict set tmpl _priv [lrange [dict get $tmpl _priv] 0 end-1]
+	return $priv
+}
+
 ######################################################################
 # TMPL_VAR handlers
 ######################################################################
