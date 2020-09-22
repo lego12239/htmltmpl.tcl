@@ -345,7 +345,9 @@ proc _apply {chunks data} {
 	return $str
 }
 
-# UTILS
+######################################################################
+# PARSE UTILS
+######################################################################
 proc _push_chunks {_tmpl chunks} {
 	upvar $_tmpl tmpl
 
