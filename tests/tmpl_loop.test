@@ -42,6 +42,27 @@ tcltest::test tmpl_loop-4.0 {
 	htmltmpl::apply $tmpl {l1 {{v1 1} {v1 2} {v1 3}}}
 } -result {text q1aq2aq3a here}
 
+tcltest::test tmpl_loop-4.1 {
+	TMPL_LOOP apply(with vars)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_LOOP NAME=l1>q<TMPL_VAR NAME=v1>a</TMPL_LOOP> here<TMPL_LOOP NAME=l1>q<TMPL_VAR NAME=v1>a</TMPL_LOOP>"]
+	htmltmpl::apply $tmpl {l1 {{v1 1} {v1 2} {v1 3}}}
+} -result {text q1aq2aq3a hereq1aq2aq3a}
+
+tcltest::test tmpl_loop-4.2 {
+	TMPL_LOOP apply(with vars)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_LOOP NAME=l1>q<TMPL_VAR NAME=v1>a</TMPL_LOOP> here<TMPL_LOOP NAME=l1>H</TMPL_LOOP>"]
+	htmltmpl::apply $tmpl {l1 {{v1 1} {v1 2} {v1 3}}}
+} -result {text q1aq2aq3a hereHHH}
+
+tcltest::test tmpl_loop-4.3 {
+	TMPL_LOOP apply(with vars)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_LOOP NAME=l1>q<TMPL_VAR NAME=v1>a</TMPL_LOOP> here<TMPL_LOOP NAME=l1>H<TMPL_VAR NAME=v2></TMPL_LOOP>"]
+	htmltmpl::apply $tmpl {l1 {{v1 1} {v1 2} {v1 3}}}
+} -result {text q1aq2aq3a hereHHH}
+
 tcltest::test tmpl_loop-5.0 {
 	TMPL_LOOP apply(with vars)
 } -body {
