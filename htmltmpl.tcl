@@ -325,24 +325,42 @@ proc gets_from_str {_ctx _var} {
 # APPLY ROUTINES
 ######################################################################
 proc apply {tmpl data} {
-	set str [_apply [dict get $tmpl chunks] $data]
+	set ctx [list [dict get $tmpl chunks] [list $data]]
+	set str [_apply $ctx]
 	return $str
 }
 
-proc _apply {chunks data} {
+proc _apply {ctx} {
 	variable tags
 	set str ""
 
+	set chunks [_ctx_get_chunks $ctx]
+	set data [_ctx_get_data $ctx]
 	foreach chunk $chunks {
 		set type [lindex $chunk 0]
 		if {$type eq "TEXT"} {
 			append str [lindex $chunk 1]
 		} else {
-			append str [[dict get $tags $type apply] $chunk $data]
+			append str [[dict get $tags $type apply] $ctx $chunk]
 		}
 	}
 
 	return $str
+}
+
+######################################################################
+# APPLY UTILS
+######################################################################
+proc _ctx_get_chunks {ctx} {
+	return [lindex $ctx 0]
+}
+
+proc _ctx_get_data {ctx} {
+	return [lindex $ctx 1 end]
+}
+
+proc _ctx_level_down {ctx chunks data} {
+	return [list $chunks [lreplace [lindex $ctx 1] end+1 end+1 $data]]
 }
 
 ######################################################################
@@ -391,10 +409,10 @@ proc _tmpl_var_parse {_tmpl attrs} {
 }
 dict set tags TMPL_VAR parse _tmpl_var_parse
 
-proc _tmpl_var_apply {chunk data} {
+proc _tmpl_var_apply {ctx chunk} {
 	set name [lindex $chunk 1]
-	if {[dict exists $data $name]} {
-		return [dict get $data $name]
+	if {[dict exists [_ctx_get_data $ctx] $name]} {
+		return [dict get [_ctx_get_data $ctx] $name]
 	}
 	return ""
 }
@@ -428,17 +446,17 @@ proc _tmpl_loop_end_parse {_tmpl attrs} {
 }
 dict set tags /TMPL_LOOP parse _tmpl_loop_end_parse
 
-proc _tmpl_loop_apply {chunk data} {
+proc _tmpl_loop_apply {ctx chunk} {
 	set str ""
 
 	set name [lindex $chunk 1]
-	if {![dict exists $data $name]} {
+	if {![dict exists [_ctx_get_data $ctx] $name]} {
 		return ""
 	}
-	set ldata [dict get $data $name]
-	set lchunk [lindex $chunk 2]
+	set ldata [dict get [_ctx_get_data $ctx] $name]
+	set lchunks [lindex $chunk 2]
 	foreach d $ldata {
-		append str [_apply $lchunk $d]
+		append str [_apply [_ctx_level_down $ctx $lchunks $d]]
 	}
 	return $str
 }
