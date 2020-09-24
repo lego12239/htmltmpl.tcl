@@ -110,7 +110,7 @@ tcltest::test tmpl_var-5.5 {
 	htmltmpl::apply $tmpl {v1 value}
 } -result {text value herevalueq}
 
-tcltest::test tmpl_var-6.0 {
+tcltest::test tmpl_var-err-1.0 {
 	TMPL_VAR compile err(no NAME)
 } -body {
 	htmltmpl::compile_str "text <TMPL_VAR NAM = v1> here"
