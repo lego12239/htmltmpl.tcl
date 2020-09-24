@@ -408,13 +408,19 @@ proc _tmpl_var_parse {_tmpl attrs} {
 	if {![dict exists $attrs NAME]} {
 		error "TMPL_VAR: NAME is missed" "" HTMLTMPLERR
 	}
-	dict lappend tmpl chunks [list "TMPL_VAR" [dict get $attrs NAME]]
+	if {[dict exists $attrs DEFAULT]} {
+		set defval [dict get $attrs DEFAULT]
+	} else {
+		set defval ""
+	}
+	dict lappend tmpl chunks [list "TMPL_VAR" [dict get $attrs NAME] $defval]
 }
 dict set tags TMPL_VAR parse _tmpl_var_parse
 
 proc _tmpl_var_apply {ctx chunk} {
 	set name [lindex $chunk 1]
-	return [_ctx_get_data $ctx $name]
+	set defval [lindex $chunk 2]
+	return [_ctx_get_data $ctx $name $defval]
 }
 dict set tags TMPL_VAR apply _tmpl_var_apply
 
