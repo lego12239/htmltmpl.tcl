@@ -110,6 +110,26 @@ tcltest::test tmpl_var-5.5 {
 	htmltmpl::apply $tmpl {v1 value}
 } -result {text value herevalueq}
 
+tcltest::test tmpl_var-6.0 {
+	TMPL_VAR with DEFAULT
+} -body {
+	htmltmpl::compile_str "text <TMPL_VAR NAME = v1 DEFAULT=\"1 2\"> here<TMPL_VAR NAME = v1>q"
+} -result {chunks {{TEXT {text }} {TMPL_VAR v1 {1 2}} {TEXT { here}} {TMPL_VAR v1 {}} {TEXT q}}}
+
+tcltest::test tmpl_var-7.0 {
+	TMPL_VAR apply(with DEFAULT)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_VAR NAME = v1 DEFAULT=\"1 2\"> here<TMPL_VAR NAME = v1>q"]
+	htmltmpl::apply $tmpl {v1 value}
+} -result {text value herevalueq}
+
+tcltest::test tmpl_var-7.1 {
+	TMPL_VAR apply(with DEFAULT)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_VAR NAME = v1 DEFAULT=\"1 2\"> here<TMPL_VAR NAME = v1>q"]
+	htmltmpl::apply $tmpl {v2 value}
+} -result {text 1 2 hereq}
+
 tcltest::test tmpl_var-err-1.0 {
 	TMPL_VAR compile err(no NAME)
 } -body {
