@@ -335,7 +335,6 @@ proc _apply {ctx} {
 	set str ""
 
 	set chunks [_ctx_get_chunks $ctx]
-	set data [_ctx_get_data $ctx]
 	foreach chunk $chunks {
 		set type [lindex $chunk 0]
 		if {$type eq "TEXT"} {
