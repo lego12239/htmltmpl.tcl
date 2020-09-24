@@ -354,8 +354,12 @@ proc _ctx_get_chunks {ctx} {
 	return [lindex $ctx 0]
 }
 
-proc _ctx_get_data {ctx} {
-	return [lindex $ctx 1 end]
+proc _ctx_get_data {ctx name} {
+	set data [lindex $ctx 1 end]
+	if {![dict exists $data $name]} {
+		return ""
+	}
+	return [dict get $data $name]
 }
 
 proc _ctx_level_down {ctx chunks data} {
@@ -410,10 +414,7 @@ dict set tags TMPL_VAR parse _tmpl_var_parse
 
 proc _tmpl_var_apply {ctx chunk} {
 	set name [lindex $chunk 1]
-	if {[dict exists [_ctx_get_data $ctx] $name]} {
-		return [dict get [_ctx_get_data $ctx] $name]
-	}
-	return ""
+	return [_ctx_get_data $ctx $name]
 }
 dict set tags TMPL_VAR apply _tmpl_var_apply
 
@@ -449,10 +450,10 @@ proc _tmpl_loop_apply {ctx chunk} {
 	set str ""
 
 	set name [lindex $chunk 1]
-	if {![dict exists [_ctx_get_data $ctx] $name]} {
+	set ldata [_ctx_get_data $ctx $name]
+	if {[llength $ldata] == 0} {
 		return ""
 	}
-	set ldata [dict get [_ctx_get_data $ctx] $name]
 	set lchunks [lindex $chunk 2]
 	foreach d $ldata {
 		append str [_apply [_ctx_level_down $ctx $lchunks $d]]
