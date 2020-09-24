@@ -354,10 +354,10 @@ proc _ctx_get_chunks {ctx} {
 	return [lindex $ctx 0]
 }
 
-proc _ctx_get_data {ctx name} {
+proc _ctx_get_data {ctx name {defval ""}} {
 	set data [lindex $ctx 1 end]
 	if {![dict exists $data $name]} {
-		return ""
+		return $defval
 	}
 	return [dict get $data $name]
 }
