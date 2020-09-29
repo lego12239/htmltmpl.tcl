@@ -70,7 +70,7 @@ tcltest::test tmpl_loop-5.0 {
 	htmltmpl::apply $tmpl {l1 {{v1 1} {} {v1 3}}}
 } -result {text q1aqaq3a here}
 
-tcltest::test tmpl_loop-6.0 {
+tcltest::test tmpl_loop-err-1.0 {
 	TMPL_LOOP compile err(no NAME)
 } -body {
 	htmltmpl::compile_str "text <TMPL_LOOP NAM = v1></TMPL_LOOP> here"
