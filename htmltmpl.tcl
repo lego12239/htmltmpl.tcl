@@ -52,6 +52,9 @@ proc _mk_ctx_from_args {argslist {prms ""}} {
 	for {set i 0} {$i < $len} {incr i} {
 		set prm [string range [lindex $argslist $i] 1 end]
 		switch $prm {
+			globalvars {
+				set val 1
+			}
 			default {
 				if {[lsearch -exact $prms $prm] < 0} {
 					error "unknown parameter: [lindex $argslist $i]" ""\
@@ -93,7 +96,7 @@ proc _compile {ctx_init} {
 	  lineno 0\
 	  buf ""\
 	  state 0\
-	  prms {}]
+	  prms {globalvars 0}]
 	set ctx [dict merge $ctx_def $ctx_init]
 	dict set ctx prms [dict merge [dict get $ctx_def prms]\
 	  [dict get $ctx_init prms]]
@@ -372,11 +375,19 @@ proc _ctx_get_chunks {ctx} {
 }
 
 proc _ctx_get_data {ctx name {defval ""}} {
-	set data [lindex $ctx 1 end]
-	if {![dict exists $data $name]} {
-		return $defval
+	set idx [llength [lindex $ctx 1]]
+	incr idx -1
+	while 1 {
+		set data [lindex $ctx 1 $idx]
+		if {[dict exists $data $name]} {
+			return [dict get $data $name]
+		}
+		if {(![_ctx_get_pval $ctx globalvars]) || ($idx == 0)} {
+			break;
+		}
+		incr idx -1
 	}
-	return [dict get $data $name]
+	return $defval
 }
 
 proc _ctx_level_down {ctx chunks data} {
