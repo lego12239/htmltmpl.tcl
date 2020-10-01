@@ -29,13 +29,13 @@ variable tags [dict create]
 #   compiled template
 proc compile_str {args} {
 	set ctx [_mk_ctx_from_args $args]
-	if {![dict exists $ctx p_s]} {
-		dict set ctx p_s 0
+	if {![dict exists $ctx prms s]} {
+		dict set ctx prms s 0
 	}
-	if {![dict exists $ctx p_e]} {
-		dict set ctx p_e [string length [dict get $ctx src]]
+	if {![dict exists $ctx prms e]} {
+		dict set ctx prms e [string length [dict get $ctx src]]
 	}
-	if {[dict get $ctx p_e] < [dict get $ctx p_s]} {
+	if {[dict get $ctx prms e] < [dict get $ctx prms s]} {
 		error "e is less than s" "" HTMLTMPLERR
 	}
 	dict set ctx gets_r [namespace current]::gets_from_str
@@ -44,7 +44,7 @@ proc compile_str {args} {
 }
 
 proc _mk_ctx_from_args {argslist {prms ""}} {
-	set ctx [dict create]
+	set ctx [dict create prms {}]
 	set len [expr {[llength $argslist] - 1}]
 #	lappend prms hd
 	for {set i 0} {$i < $len} {incr i} {
@@ -53,7 +53,7 @@ proc _mk_ctx_from_args {argslist {prms ""}} {
 			error "unknown parameter: [lindex $argslist $i]" "" HTMLTMPLERR
 		}
 		incr i
-		dict set ctx p_$prm [lindex $argslist $i]
+		dict set ctx prms $prm [lindex $argslist $i]
 	}
 
 	dict set ctx src [lindex $argslist end]
@@ -81,11 +81,14 @@ proc _compile {ctx_init} {
 	#   toks_toks - a cache for _toks_match(tokens numbers in one string)
 	#   sect - a current section(hierarchy level name)
 	#   p_hd - a hierarchy delimeter characters for key names
-	set ctx [dict create\
+	set ctx_def [dict create\
 	  lineno 0\
 	  buf ""\
-	  state 0]
-	set ctx [dict merge $ctx $ctx_init]
+	  state 0\
+	  prms {}]
+	set ctx [dict merge $ctx_def $ctx_init]
+	dict set ctx prms [dict merge [dict get $ctx_def prms]\
+	  [dict get $ctx_init prms]]
 	set err ""
 	if {[catch {_parse ctx} tmpl]} {
 		set linfo "at line [dict get $ctx lineno]: "
@@ -306,18 +309,19 @@ proc gets_from_str {_ctx _var} {
 	upvar $_ctx ctx
 	upvar $_var var
 
-	if {[dict get $ctx p_s] > [dict get $ctx p_e]} {
+	if {[dict get $ctx prms s] > [dict get $ctx prms e]} {
 		return -1
 	}
-	set pos [string first "\n" [dict get $ctx src] [dict get $ctx p_s]]
-	if {($pos < 0) || ($pos > [dict get $ctx p_e])} {
-		set pos [dict get $ctx p_e]
+	set pos [string first "\n" [dict get $ctx src] [dict get $ctx prms s]]
+	if {($pos < 0) || ($pos > [dict get $ctx prms e])} {
+		set pos [dict get $ctx prms e]
 		set off 0
 	} else {
 		set off -1
 	}
-	set var [string range [dict get $ctx src] [dict get $ctx p_s] ${pos}$off]
-	dict set ctx p_s [expr {$pos + 1}]
+	set var [string range [dict get $ctx src] [dict get $ctx prms s]\
+	  ${pos}$off]
+	dict set ctx prms s [expr {$pos + 1}]
 	return [string length $var]
 }
 
