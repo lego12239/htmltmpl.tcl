@@ -40,6 +40,8 @@ proc compile_str {args} {
 	}
 	dict set ctx gets_r [namespace current]::gets_from_str
 	set tmpl [_compile $ctx]
+	dict unset tmpl prms s
+	dict unset tmpl prms e
 	return $tmpl
 }
 
@@ -49,11 +51,17 @@ proc _mk_ctx_from_args {argslist {prms ""}} {
 #	lappend prms hd
 	for {set i 0} {$i < $len} {incr i} {
 		set prm [string range [lindex $argslist $i] 1 end]
-		if {[lsearch -exact $prms $prm] < 0} {
-			error "unknown parameter: [lindex $argslist $i]" "" HTMLTMPLERR
+		switch $prm {
+			default {
+				if {[lsearch -exact $prms $prm] < 0} {
+					error "unknown parameter: [lindex $argslist $i]" ""\
+					  HTMLTMPLERR
+				}
+				incr i
+				set val [lindex $argslist $i]
+			}
 		}
-		incr i
-		dict set ctx prms $prm [lindex $argslist $i]
+		dict set ctx prms $prm $val
 	}
 
 	dict set ctx src [lindex $argslist end]
@@ -94,6 +102,7 @@ proc _compile {ctx_init} {
 		set linfo "at line [dict get $ctx lineno]: "
 		error "${linfo}$tmpl" "${linfo}$::errorInfo" $::errorCode
 	}
+	dict set tmpl prms [dict get $ctx prms]
 	return $tmpl
 }
 
@@ -329,7 +338,7 @@ proc gets_from_str {_ctx _var} {
 # APPLY ROUTINES
 ######################################################################
 proc apply {tmpl data} {
-	set ctx [list [dict get $tmpl chunks] [list $data]]
+	set ctx [list [dict get $tmpl chunks] [list $data] [dict get $tmpl prms]]
 	set str [_apply $ctx]
 	return $str
 }
@@ -354,6 +363,10 @@ proc _apply {ctx} {
 ######################################################################
 # APPLY UTILS
 ######################################################################
+proc _ctx_get_pval {ctx pname} {
+	return [dict get [lindex $ctx 2] $pname]
+}
+
 proc _ctx_get_chunks {ctx} {
 	return [lindex $ctx 0]
 }
@@ -367,7 +380,8 @@ proc _ctx_get_data {ctx name {defval ""}} {
 }
 
 proc _ctx_level_down {ctx chunks data} {
-	return [list $chunks [lreplace [lindex $ctx 1] end+1 end+1 $data]]
+	return [list $chunks [lreplace [lindex $ctx 1] end+1 end+1 $data]\
+	  [lindex $ctx 2]]
 }
 
 ######################################################################
