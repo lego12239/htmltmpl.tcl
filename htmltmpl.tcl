@@ -21,6 +21,41 @@ variable tags [dict create]
 ######################################################################
 # COMPILE ROUTINES
 ######################################################################
+# Compile a template from a file.
+# SYNOPSIS:
+#   compile_file FILE_NAME
+#
+# RETURN:
+#   compiled template
+proc compile_file {args} {
+	set ctx [_mk_ctx_from_args $args]
+	dict set ctx gets_r [namespace current]::gets_from_fh
+	set fh [open [dict get $ctx src]]
+	dict set ctx src $fh
+	set err ""
+	if {[catch {_compile $ctx} tmpl]} {
+		set err [list $tmpl $::errorInfo $::errorCode]
+	}
+	close $fh
+	if {$err ne ""} {
+		error {*}$err
+	}
+	return $tmpl
+}
+
+# Compile a template from file handle.
+# SYNOPSIS:
+#   compile_fh CHAN
+#
+# RETURN:
+#   compiled template
+proc compile_fh {args} {
+	set ctx [_mk_ctx_from_args $args]
+	dict set ctx gets_r [namespace current]::gets_from_fh
+	set tmpl [_compile $ctx]
+	return $tmpl
+}
+
 # Compile a template from a string.
 # SYNOPSIS:
 #   compile_str STR
