@@ -1,0 +1,32 @@
+lappend auto_path [pwd]/../
+package require tcltest
+package require htmltmpl
+
+tcltest::test file-1.0 {
+	compile missing file
+} -body {
+	htmltmpl::compile_file non-existent.SOURCE.FILE
+} -returnCodes error -result "couldn't open \"non-existent.SOURCE.FILE\": no such file or directory"
+
+tcltest::test file-2.0 {
+	compile missing channel
+} -body {
+	htmltmpl::compile_fh non-existent.SOURCE.CHANNEL
+} -returnCodes error -result "at line 0: can not find channel named \"non-existent.SOURCE.CHANNEL\""
+
+tcltest::test file-3.0 {
+	compile file
+} -body {
+	htmltmpl::compile_file test.template
+} -result {chunks {{TEXT {some }} {TMPL_LOOP v1 {{TEXT q}}} {TEXT { text}}} prms {globalvars 0}}
+
+tcltest::test file-4.0 {
+	compile channel
+} -body {
+	set fh [open test.template]
+	set tmpl [htmltmpl::compile_fh $fh]
+	close $fh
+	return $tmpl
+} -result {chunks {{TEXT {some }} {TMPL_LOOP v1 {{TEXT q}}} {TEXT { text}}} prms {globalvars 0}}
+
+tcltest::cleanupTests

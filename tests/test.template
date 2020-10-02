@@ -1,0 +1,1 @@
+some <TMPL_LOOP NAME=v1>q</TMPL_LOOP> text
