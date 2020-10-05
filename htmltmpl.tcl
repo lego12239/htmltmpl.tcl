@@ -19,6 +19,22 @@ namespace eval htmltmpl {
 variable tags [dict create]
 
 ######################################################################
+# UTILS
+######################################################################
+proc _pctenc_encode {str} {
+	set res ""
+	set len [string length $str]
+	for {set i 0} {$i < $len} {incr i} {
+		set c [string index $str $i]
+		if {![regexp {[A-Za-z0-9_.~-]} $c]} {
+			set c "%[binary encode hex $c]"
+		}
+		append res $c
+	}
+	return $res
+}
+
+######################################################################
 # COMPILE ROUTINES
 ######################################################################
 # Compile a template from a file.
@@ -477,14 +493,43 @@ proc _tmpl_var_parse {_tmpl attrs} {
 	} else {
 		set defval ""
 	}
-	dict lappend tmpl chunks [list "TMPL_VAR" [dict get $attrs NAME] $defval]
+	if {[dict exists $attrs ESCAPE]} {
+		set esc [dict get $attrs ESCAPE]
+		# If the order of words is changed, then _tmpl_var_apply must be
+		# changed too.
+		set esc_code [lsearch -exact "NONE HTML JS URI" $esc]
+		if {$esc_code < 0} {
+			error "TMPL_VAR: ESCAPE is wrong: $esc"
+		}
+	} else {
+		set esc_code 0
+	}
+	dict lappend tmpl chunks [list "TMPL_VAR"\
+	  [dict get $attrs NAME] $defval $esc_code]
 }
 dict set tags TMPL_VAR parse _tmpl_var_parse
 
 proc _tmpl_var_apply {ctx chunk} {
 	set name [lindex $chunk 1]
 	set defval [lindex $chunk 2]
-	return [_ctx_get_data $ctx $name $defval]
+	set val [_ctx_get_data $ctx $name $defval]
+	switch [lindex $chunk 3] {
+		0 {
+		}
+		1 {
+			# &, <, > - for any places
+			# ", ' - for element attributes
+			set val [string map {& &amp; < &lt; > &gt; \" &quot; \' &#39;}\
+			  $val]
+		}
+		2 {
+			set val [string map {\\ \\\\ \' \\' \" \\\" \n \\n \r \\r} $val]
+		}
+		3 {
+			set val [_pctenc_encode [encoding convertto utf-8 $val]]
+		}
+	}
+	return $val
 }
 dict set tags TMPL_VAR apply _tmpl_var_apply
 
