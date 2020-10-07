@@ -1,7 +1,7 @@
 Overview
 =======
 htmltmpl package implement a text template engine similar to perl
-HTML::Template.
+HTML::Template. The goal is to separate code and markup.
 
 Synopsis
 ========
