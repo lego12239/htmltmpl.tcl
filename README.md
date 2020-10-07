@@ -7,6 +7,7 @@ Synopsis
 ========
 <TMPL_VAR NAME=var_key_name [DEFAULT=value] [ESCAPE=NONE|HTML|JS|URI]>
 <TMPL_LOOP NAME=list_key_name>...</TMPL_LOOP>
+<TMPL_IF NAME=var_key_name>...</TMPL_IF>
 
 Template tags
 =============
@@ -33,3 +34,12 @@ core:
       a data dict for substitution. A content of this element is repeated
       as many times as there are elements in the list with tags
       substitution as expected.
+
+  TMPL_IF
+      <TMPL_IF NAME=var_key_name>...</TMPL_IF>
+
+      A content of this element is not included in the output if:
+      - var_key_name key isn't exist in a data dict
+      - value of a key is an empty string
+      - value of a key is a false boolean value(according to Tcl_GetDouble)
+      In other case a content is included in the output.

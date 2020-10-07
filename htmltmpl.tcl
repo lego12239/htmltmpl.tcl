@@ -580,5 +580,52 @@ proc _tmpl_loop_apply {ctx chunk} {
 }
 dict set tags TMPL_LOOP apply _tmpl_loop_apply
 
+######################################################################
+# TMPL_IF handlers
+######################################################################
+proc _tmpl_if_parse {_tmpl attrs} {
+	upvar $_tmpl tmpl
+
+	if {![dict exists $attrs NAME]} {
+		error "TMPL_IF: NAME is missed" "" HTMLTMPLERR
+	}
+	_push_chunks tmpl {}
+	_push_priv tmpl [list "TMPL_IF" $attrs]
+}
+dict set tags TMPL_IF parse _tmpl_if_parse
+
+proc _tmpl_if_end_parse {_tmpl attrs} {
+	upvar $_tmpl tmpl
+
+	set priv [_pop_priv tmpl]
+	if {[lindex $priv 0] ne "TMPL_IF"} {
+		error "internal error(TMPL_IF: _priv corrupted: $priv)" "" HTMLTMPLERR
+	}
+	set attrs [lindex $priv 1]
+
+	set chunks [_pop_chunks tmpl]
+	dict lappend tmpl chunks [list "TMPL_IF" [dict get $attrs NAME] $chunks]
+}
+dict set tags /TMPL_IF parse _tmpl_if_end_parse
+
+proc _tmpl_if_apply {ctx chunk} {
+	set str ""
+
+	set name [lindex $chunk 1]
+	set val [_ctx_get_data $ctx $name 0]
+	if {$val eq ""} {
+		set val 0
+	}
+	if {![string is boolean -strict $val]} {
+		set val 1
+	}
+	if {$val} {
+		set ifchunks [lindex $chunk 2]
+		return [_apply [_ctx_level_down $ctx $ifchunks [_ctx_get_data $ctx]]]
+	}
+	return ""
+}
+dict set tags TMPL_IF apply _tmpl_if_apply
+
 }
 

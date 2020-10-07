@@ -1,0 +1,149 @@
+lappend auto_path [pwd]/../
+package require tcltest
+package require htmltmpl
+
+tcltest::test tmpl_if-1.0 {
+	TMPL_IF empty
+} -body {
+	htmltmpl::compile_str "<TMPL_IF NAME=v1></TMPL_IF>"
+} -result {chunks {{TMPL_IF v1 {}}} prms {globalvars 0}}
+
+tcltest::test tmpl_if-1.1 {
+	TMPL_IF with text before and after
+} -body {
+	htmltmpl::compile_str "some <TMPL_IF NAME=v1>q<TMPL_VAR NAME=v2>w w</TMPL_IF> text"
+} -result {chunks {{TEXT {some }} {TMPL_IF v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}}} {TEXT { text}}} prms {globalvars 0}}
+
+tcltest::test tmpl_if-2.0 {
+	TMPL_IF apply with no var in data
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {}
+} -result {text  here}
+
+tcltest::test tmpl_if-3.0 {
+	TMPL_IF apply with empty value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 ""}
+} -result {text  here}
+
+tcltest::test tmpl_if-3.1 {
+	TMPL_IF apply with empty value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 0}
+} -result {text  here}
+
+tcltest::test tmpl_if-3.2 {
+	TMPL_IF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 false}
+} -result {text  here}
+
+tcltest::test tmpl_if-3.3 {
+	TMPL_IF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 fAlSe}
+} -result {text  here}
+
+tcltest::test tmpl_if-3.4 {
+	TMPL_IF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 no}
+} -result {text  here}
+
+tcltest::test tmpl_if-3.5 {
+	TMPL_IF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 nO}
+} -result {text  here}
+
+tcltest::test tmpl_if-3.6 {
+	TMPL_IF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 off}
+} -result {text  here}
+
+tcltest::test tmpl_if-3.7 {
+	TMPL_IF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 oFf}
+} -result {text  here}
+
+tcltest::test tmpl_if-4.0 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 1}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.1 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 2222}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.2 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 true}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.3 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 tRuE}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.4 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 yes}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.5 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 yEs}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.6 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 oN}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.7 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 some}
+} -result {text q here}
+
+tcltest::test tmpl_if-5.0 {
+	TMPL_IF apply(check data context)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_VAR NAME=v2>w</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 some v2 io}
+} -result {text qiow here}
+
+tcltest::test tmpl_if-err-1.0 {
+	TMPL_IF compile err(no NAME)
+} -body {
+	htmltmpl::compile_str "text <TMPL_IF NAM = v1></TMPL_IF> here"
+} -returnCodes error -result "at line 1: TMPL_IF: NAME is missed"
+
+tcltest::cleanupTests
