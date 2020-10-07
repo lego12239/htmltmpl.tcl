@@ -425,9 +425,12 @@ proc _ctx_get_chunks {ctx} {
 	return [lindex $ctx 0]
 }
 
-proc _ctx_get_data {ctx name {defval ""}} {
+proc _ctx_get_data {ctx {name ""} {defval ""}} {
 	set idx [llength [lindex $ctx 1]]
 	incr idx -1
+	if {$name eq ""} {
+		return [lindex $ctx 1 $idx]
+	}
 	while 1 {
 		set data [lindex $ctx 1 $idx]
 		if {[dict exists $data $name]} {
