@@ -21,7 +21,7 @@ tcltest::test tmpl_loop-2.0 {
 	htmltmpl::apply $tmpl {}
 } -result {text  here}
 
-tcltest::test tmpl_loop-2.0 {
+tcltest::test tmpl_loop-2.1 {
 	TMPL_LOOP apply
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_LOOP NAME=v1>q</TMPL_LOOP> here"]
