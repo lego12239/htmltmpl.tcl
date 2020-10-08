@@ -1,0 +1,294 @@
+lappend auto_path [pwd]/../
+package require tcltest
+package require htmltmpl
+
+tcltest::test tmpl_unless-1.0 {
+	TMPL_UNLESS empty
+} -body {
+	htmltmpl::compile_str "<TMPL_UNLESS NAME=v1></TMPL_UNLESS>"
+} -result {chunks {{TMPL_UNLESS v1 {} {}}} prms {globalvars 0}}
+
+tcltest::test tmpl_unless-1.1 {
+	TMPL_UNLESS with text before and after
+} -body {
+	htmltmpl::compile_str "some <TMPL_UNLESS NAME=v1>q<TMPL_VAR NAME=v2>w w</TMPL_UNLESS> text"
+} -result {chunks {{TEXT {some }} {TMPL_UNLESS v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}} {}} {TEXT { text}}} prms {globalvars 0}}
+
+tcltest::test tmpl_unless-1.2 {
+	TMPL_UNLESS, TMPL_ELSE with text before and after
+} -body {
+	htmltmpl::compile_str "some <TMPL_UNLESS NAME=v1>q<TMPL_VAR NAME=v2>w w<TMPL_ELSE>zxcv<TMPL_VAR NAME=v3>asdf</TMPL_UNLESS> text"
+} -result {chunks {{TEXT {some }} {TMPL_UNLESS v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}} {{TEXT zxcv} {TMPL_VAR v3 {} 0} {TEXT asdf}}} {TEXT { text}}} prms {globalvars 0}}
+
+tcltest::test tmpl_unless-2.0 {
+	TMPL_UNLESS apply with no var in data
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {}
+} -result {text q here}
+
+tcltest::test tmpl_unless-2.1 {
+	TMPL_UNLESS apply with no var in data(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.0 {
+	TMPL_UNLESS apply with empty value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 ""}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.1 {
+	TMPL_UNLESS apply with empty value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 ""}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.2 {
+	TMPL_UNLESS apply with 0 value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 0}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.3 {
+	TMPL_UNLESS apply with 0 value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 0}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.4 {
+	TMPL_UNLESS apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 false}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.5 {
+	TMPL_UNLESS apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 false}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.6 {
+	TMPL_UNLESS apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 fAlSe}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.7 {
+	TMPL_UNLESS apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 fAlSe}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.8 {
+	TMPL_UNLESS apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 no}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.9 {
+	TMPL_UNLESS apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 no}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.10 {
+	TMPL_UNLESS apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 nO}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.11 {
+	TMPL_UNLESS apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 nO}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.12 {
+	TMPL_UNLESS apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 off}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.13 {
+	TMPL_UNLESS apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 off}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.14 {
+	TMPL_UNLESS apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 oFf}
+} -result {text q here}
+
+tcltest::test tmpl_unless-3.15 {
+	TMPL_UNLESS apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 oFf}
+} -result {text q here}
+
+tcltest::test tmpl_unless-4.0 {
+	TMPL_UNLESS apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 1}
+} -result {text  here}
+
+tcltest::test tmpl_unless-4.1 {
+	TMPL_UNLESS apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 1}
+} -result {text W here}
+
+tcltest::test tmpl_unless-4.2 {
+	TMPL_UNLESS apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 2222}
+} -result {text  here}
+
+tcltest::test tmpl_unless-4.3 {
+	TMPL_UNLESS apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 2222}
+} -result {text W here}
+
+tcltest::test tmpl_unless-4.4 {
+	TMPL_UNLESS apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 true}
+} -result {text  here}
+
+tcltest::test tmpl_unless-4.5 {
+	TMPL_UNLESS apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 true}
+} -result {text W here}
+
+tcltest::test tmpl_unless-4.6 {
+	TMPL_UNLESS apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 tRuE}
+} -result {text  here}
+
+tcltest::test tmpl_unless-4.7 {
+	TMPL_UNLESS apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 tRuE}
+} -result {text W here}
+
+tcltest::test tmpl_unless-4.8 {
+	TMPL_UNLESS apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 yes}
+} -result {text  here}
+
+tcltest::test tmpl_unless-4.9 {
+	TMPL_UNLESS apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 yes}
+} -result {text W here}
+
+tcltest::test tmpl_unless-4.10 {
+	TMPL_UNLESS apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 yEs}
+} -result {text  here}
+
+tcltest::test tmpl_unless-4.11 {
+	TMPL_UNLESS apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 yEs}
+} -result {text W here}
+
+tcltest::test tmpl_unless-4.12 {
+	TMPL_UNLESS apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 oN}
+} -result {text  here}
+
+tcltest::test tmpl_unless-4.13 {
+	TMPL_UNLESS apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 oN}
+} -result {text W here}
+
+tcltest::test tmpl_unless-4.14 {
+	TMPL_UNLESS apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 some}
+} -result {text  here}
+
+tcltest::test tmpl_unless-4.15 {
+	TMPL_UNLESS apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_ELSE>W</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 some}
+} -result {text W here}
+
+tcltest::test tmpl_unless-5.0 {
+	TMPL_UNLESS apply(check data context)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_VAR NAME=v2>w</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v2 io}
+} -result {text qiow here}
+
+tcltest::test tmpl_unless-5.1 {
+	TMPL_UNLESS apply(check data context)(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_VAR NAME=v2>w<TMPL_ELSE><TMPL_VAR NAME=v3>E</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v2 io v3 KK}
+} -result {text qiow here}
+
+tcltest::test tmpl_unless-5.2 {
+	TMPL_UNLESS apply(check data context)(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_UNLESS NAME=v1>q<TMPL_VAR NAME=v2>w<TMPL_ELSE><TMPL_VAR NAME=v3>E</TMPL_UNLESS> here"]
+	htmltmpl::apply $tmpl {v1 some v2 io v3 KK}
+} -result {text KKE here}
+
+tcltest::test tmpl_unless-err-1.0 {
+	TMPL_UNLESS compile err(no NAME)
+} -body {
+	htmltmpl::compile_str "text <TMPL_UNLESS NAM = v1></TMPL_UNLESS> here"
+} -returnCodes error -result "at line 1: TMPL_UNLESS: NAME is missed"
+
+tcltest::test tmpl_unless-err-2.0 {
+	TMPL_UNLESS compile err(close tag mismatch)
+} -body {
+	htmltmpl::compile_str "text <TMPL_LOOP NAME = v1></TMPL_UNLESS> here"
+} -returnCodes error -result "at line 1: /TMPL_UNLESS: there was 'TMPL_LOOP' tag instead of TMPL_UNLESS"
+
+tcltest::cleanupTests
