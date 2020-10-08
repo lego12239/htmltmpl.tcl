@@ -603,13 +603,26 @@ dict set tags TMPL_LOOP apply _tmpl_loop_apply
 proc _tmpl_if_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
 
-	if {![dict exists $attrs NAME]} {
-		error "TMPL_IF: NAME is missed" "" HTMLTMPLERR
-	}
-	_push_chunks tmpl {}
-	_push_priv tmpl [list "TMPL_IF" $attrs]
+	__tmpl_ifunless_parse tmpl $attrs TMPL_IF
 }
 dict set tags TMPL_IF parse _tmpl_if_parse
+
+proc _tmpl_unless_parse {_tmpl attrs} {
+	upvar $_tmpl tmpl
+
+	__tmpl_ifunless_parse tmpl $attrs TMPL_UNLESS
+}
+dict set tags TMPL_UNLESS parse _tmpl_unless_parse
+
+proc __tmpl_ifunless_parse {_tmpl attrs tagname} {
+	upvar $_tmpl tmpl
+
+	if {![dict exists $attrs NAME]} {
+		error "$tagname: NAME is missed" "" HTMLTMPLERR
+	}
+	_push_chunks tmpl {}
+	_push_priv tmpl [list $tagname $attrs]
+}
 
 proc _tmpl_else_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
@@ -621,6 +634,20 @@ dict set tags TMPL_ELSE parse _tmpl_else_parse
 
 proc _tmpl_if_end_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
+
+	__tmpl_ifunless_end_parse tmpl $attrs TMPL_IF
+}
+dict set tags /TMPL_IF parse _tmpl_if_end_parse
+
+proc _tmpl_unless_end_parse {_tmpl attrs} {
+	upvar $_tmpl tmpl
+
+	__tmpl_ifunless_end_parse tmpl $attrs TMPL_UNLESS
+}
+dict set tags /TMPL_UNLESS parse _tmpl_unless_end_parse
+
+proc __tmpl_ifunless_end_parse {_tmpl attrs tagname} {
+	upvar $_tmpl tmpl
 	set else_chunks {}
 
 	set priv [_pop_priv tmpl]
@@ -628,19 +655,28 @@ proc _tmpl_if_end_parse {_tmpl attrs} {
 		set else_chunks [_pop_chunks tmpl]
 		set priv [_pop_priv tmpl]
 	}
-	if {[lindex $priv 0] ne "TMPL_IF"} {
-		error "/TMPL_IF: there was '[lindex $priv 0]' tag\
-		  instead of TMPL_IF" "" HTMLTMPLERR
+	if {[lindex $priv 0] ne $tagname} {
+		error "/$tagname: there was '[lindex $priv 0]' tag\
+		  instead of $tagname" "" HTMLTMPLERR
 	}
 	set attrs [lindex $priv 1]
 
 	set chunks [_pop_chunks tmpl]
 	dict lappend tmpl chunks\
-	  [list "TMPL_IF" [dict get $attrs NAME] $chunks $else_chunks]
+	  [list "$tagname" [dict get $attrs NAME] $chunks $else_chunks]
 }
-dict set tags /TMPL_IF parse _tmpl_if_end_parse
 
 proc _tmpl_if_apply {ctx chunk} {
+	return [__tmpl_ifunless_apply $ctx $chunk 1]
+}
+dict set tags TMPL_IF apply _tmpl_if_apply
+
+proc _tmpl_unless_apply {ctx chunk} {
+	return [__tmpl_ifunless_apply $ctx $chunk 0]
+}
+dict set tags TMPL_UNLESS apply _tmpl_unless_apply
+
+proc __tmpl_ifunless_apply {ctx chunk std} {
 	set str ""
 
 	set name [lindex $chunk 1]
@@ -651,14 +687,13 @@ proc _tmpl_if_apply {ctx chunk} {
 	if {![string is boolean -strict $val]} {
 		set val 1
 	}
-	if {$val} {
+	if {bool($val) == $std} {
 		set ifchunks [lindex $chunk 2]
 		return [_apply [_ctx_level_down $ctx $ifchunks [_ctx_data_get $ctx]]]
 	}
 	set elsechunks [lindex $chunk 3]
 	return [_apply [_ctx_level_down $ctx $elsechunks [_ctx_data_get $ctx]]]
 }
-dict set tags TMPL_IF apply _tmpl_if_apply
 
 
 }
