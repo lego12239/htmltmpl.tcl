@@ -285,4 +285,10 @@ tcltest::test tmpl_if-err-1.0 {
 	htmltmpl::compile_str "text <TMPL_IF NAM = v1></TMPL_IF> here"
 } -returnCodes error -result "at line 1: TMPL_IF: NAME is missed"
 
+tcltest::test tmpl_if-err-2.0 {
+	TMPL_IF compile err(close tag mismatch)
+} -body {
+	htmltmpl::compile_str "text <TMPL_LOOP NAME = v1></TMPL_IF> here"
+} -returnCodes error -result "at line 1: /TMPL_IF: there was 'TMPL_LOOP' tag instead of TMPL_IF"
+
 tcltest::cleanupTests
