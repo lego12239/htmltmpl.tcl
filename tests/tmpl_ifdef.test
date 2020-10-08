@@ -7,19 +7,19 @@ tcltest::test tmpl_ifdef-1.0 {
 	TMPL_IFDEF empty
 } -body {
 	htmltmpl::compile_str "<TMPL_IFDEF NAME=v1></TMPL_IFDEF>"
-} -result {chunks {{TMPL_IFDEF v1 {} {}}} prms {globalvars 0}}
+} -result {chunks {{8 v1 {} {}}} prms {globalvars 0}}
 
 tcltest::test tmpl_ifdef-1.1 {
 	TMPL_IFDEF with text before and after
 } -body {
 	htmltmpl::compile_str "some <TMPL_IFDEF NAME=v1>q<TMPL_VAR NAME=v2>w w</TMPL_IFDEF> text"
-} -result {chunks {{TEXT {some }} {TMPL_IFDEF v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}} {}} {TEXT { text}}} prms {globalvars 0}}
+} -result {chunks {{TEXT {some }} {8 v1 {{TEXT q} {0 v2 {} 0} {TEXT {w w}}} {}} {TEXT { text}}} prms {globalvars 0}}
 
 tcltest::test tmpl_ifdef-1.2 {
 	TMPL_IFDEF, TMPL_ELSE with text before and after
 } -body {
 	htmltmpl::compile_str "some <TMPL_IFDEF NAME=v1>q<TMPL_VAR NAME=v2>w w<TMPL_ELSE>zxcv<TMPL_VAR NAME=v3>asdf</TMPL_IFDEF> text"
-} -result {chunks {{TEXT {some }} {TMPL_IFDEF v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}} {{TEXT zxcv} {TMPL_VAR v3 {} 0} {TEXT asdf}}} {TEXT { text}}} prms {globalvars 0}}
+} -result {chunks {{TEXT {some }} {8 v1 {{TEXT q} {0 v2 {} 0} {TEXT {w w}}} {{TEXT zxcv} {0 v3 {} 0} {TEXT asdf}}} {TEXT { text}}} prms {globalvars 0}}
 
 tcltest::test tmpl_ifdef-2.0 {
 	TMPL_IFDEF apply with no var in data

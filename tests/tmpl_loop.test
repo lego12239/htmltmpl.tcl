@@ -6,13 +6,13 @@ tcltest::test tmpl_loop-1.0 {
 	TMPL_LOOP empty
 } -body {
 	htmltmpl::compile_str "<TMPL_LOOP NAME=v1></TMPL_LOOP>"
-} -result {chunks {{TMPL_LOOP v1 {}}} prms {globalvars 0}}
+} -result {chunks {{1 v1 {}}} prms {globalvars 0}}
 
 tcltest::test tmpl_loop-1.1 {
 	TMPL_LOOP with text before and after
 } -body {
 	htmltmpl::compile_str "some <TMPL_LOOP NAME=v1>q</TMPL_LOOP> text"
-} -result {chunks {{TEXT {some }} {TMPL_LOOP v1 {{TEXT q}}} {TEXT { text}}} prms {globalvars 0}}
+} -result {chunks {{TEXT {some }} {1 v1 {{TEXT q}}} {TEXT { text}}} prms {globalvars 0}}
 
 tcltest::test tmpl_loop-2.0 {
 	TMPL_LOOP apply with no var in data

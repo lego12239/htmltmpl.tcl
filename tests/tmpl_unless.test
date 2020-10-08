@@ -6,19 +6,19 @@ tcltest::test tmpl_unless-1.0 {
 	TMPL_UNLESS empty
 } -body {
 	htmltmpl::compile_str "<TMPL_UNLESS NAME=v1></TMPL_UNLESS>"
-} -result {chunks {{TMPL_UNLESS v1 {} {}}} prms {globalvars 0}}
+} -result {chunks {{4 v1 {} {}}} prms {globalvars 0}}
 
 tcltest::test tmpl_unless-1.1 {
 	TMPL_UNLESS with text before and after
 } -body {
 	htmltmpl::compile_str "some <TMPL_UNLESS NAME=v1>q<TMPL_VAR NAME=v2>w w</TMPL_UNLESS> text"
-} -result {chunks {{TEXT {some }} {TMPL_UNLESS v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}} {}} {TEXT { text}}} prms {globalvars 0}}
+} -result {chunks {{TEXT {some }} {4 v1 {{TEXT q} {0 v2 {} 0} {TEXT {w w}}} {}} {TEXT { text}}} prms {globalvars 0}}
 
 tcltest::test tmpl_unless-1.2 {
 	TMPL_UNLESS, TMPL_ELSE with text before and after
 } -body {
 	htmltmpl::compile_str "some <TMPL_UNLESS NAME=v1>q<TMPL_VAR NAME=v2>w w<TMPL_ELSE>zxcv<TMPL_VAR NAME=v3>asdf</TMPL_UNLESS> text"
-} -result {chunks {{TEXT {some }} {TMPL_UNLESS v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}} {{TEXT zxcv} {TMPL_VAR v3 {} 0} {TEXT asdf}}} {TEXT { text}}} prms {globalvars 0}}
+} -result {chunks {{TEXT {some }} {4 v1 {{TEXT q} {0 v2 {} 0} {TEXT {w w}}} {{TEXT zxcv} {0 v3 {} 0} {TEXT asdf}}} {TEXT { text}}} prms {globalvars 0}}
 
 tcltest::test tmpl_unless-2.0 {
 	TMPL_UNLESS apply with no var in data

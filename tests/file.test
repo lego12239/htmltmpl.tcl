@@ -18,7 +18,7 @@ tcltest::test file-3.0 {
 	compile file
 } -body {
 	htmltmpl::compile_file test.template
-} -result {chunks {{TEXT {some }} {TMPL_LOOP v1 {{TEXT q}}} {TEXT { text}}} prms {globalvars 0}}
+} -result {chunks {{TEXT {some }} {1 v1 {{TEXT q}}} {TEXT { text}}} prms {globalvars 0}}
 
 tcltest::test file-4.0 {
 	compile channel
@@ -27,6 +27,6 @@ tcltest::test file-4.0 {
 	set tmpl [htmltmpl::compile_fh $fh]
 	close $fh
 	return $tmpl
-} -result {chunks {{TEXT {some }} {TMPL_LOOP v1 {{TEXT q}}} {TEXT { text}}} prms {globalvars 0}}
+} -result {chunks {{TEXT {some }} {1 v1 {{TEXT q}}} {TEXT { text}}} prms {globalvars 0}}
 
 tcltest::cleanupTests

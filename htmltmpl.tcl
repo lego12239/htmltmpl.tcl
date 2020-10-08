@@ -251,7 +251,7 @@ proc _parse {_ctx} {
 					}
 					1 {
 						set tag_name [dict get $ctx tok_str]
-						if {![dict exists $tags $tag_name]} {
+						if {![_tags_exists $tag_name]} {
 							error "Unknown tag '$tag_name'"
 						}
 						set attrs {}
@@ -320,12 +320,11 @@ proc _parse {_ctx} {
 
 proc _chunk_add {_tmpl type data} {
 	upvar $_tmpl tmpl
-	variable tags
 
 	if {$type eq "TEXT"} {
 		dict lappend tmpl chunks [list "TEXT" $data]
 	} else {
-		[dict get $tags $type parse] tmpl $data
+		[_tag_phdlr [_tags_get_by_name $type]] tmpl $data
 	}
 }
 
@@ -465,7 +464,6 @@ proc apply {tmpl data} {
 }
 
 proc _apply {ctx} {
-	variable tags
 	set str ""
 
 	set chunks [_ctx_chunks_get $ctx]
@@ -474,7 +472,7 @@ proc _apply {ctx} {
 		if {$type eq "TEXT"} {
 			append str [lindex $chunk 1]
 		} else {
-			append str [[dict get $tags $type apply] $ctx $chunk]
+			append str [[_tag_ahdlr [_tags_get_by_idx $type]] $ctx $chunk]
 		}
 	}
 
@@ -590,10 +588,10 @@ proc _tmpl_var_parse {_tmpl attrs} {
 	} else {
 		set esc_code 0
 	}
-	dict lappend tmpl chunks [list "TMPL_VAR"\
+	dict lappend tmpl chunks [list [_tag_idx [_tags_get_by_name TMPL_VAR]]\
 	  [dict get $attrs NAME] $defval $esc_code]
 }
-dict set tags TMPL_VAR parse _tmpl_var_parse
+_tags_add TMPL_VAR parse _tmpl_var_parse
 
 proc _tmpl_var_apply {ctx chunk} {
 	set name [lindex $chunk 1]
@@ -617,7 +615,7 @@ proc _tmpl_var_apply {ctx chunk} {
 	}
 	return $val
 }
-dict set tags TMPL_VAR apply _tmpl_var_apply
+_tags_add TMPL_VAR apply _tmpl_var_apply
 
 ######################################################################
 # TMPL_LOOP handlers
@@ -631,7 +629,7 @@ proc _tmpl_loop_parse {_tmpl attrs} {
 	_push_chunks tmpl {}
 	_push_priv tmpl [list "TMPL_LOOP" $attrs]
 }
-dict set tags TMPL_LOOP parse _tmpl_loop_parse
+_tags_add TMPL_LOOP parse _tmpl_loop_parse
 
 proc _tmpl_loop_end_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
@@ -644,9 +642,10 @@ proc _tmpl_loop_end_parse {_tmpl attrs} {
 	set attrs [lindex $priv 1]
 
 	set chunks [_pop_chunks tmpl]
-	dict lappend tmpl chunks [list "TMPL_LOOP" [dict get $attrs NAME] $chunks]
+	dict lappend tmpl chunks [list [_tag_idx [_tags_get_by_name TMPL_LOOP]]\
+	  [dict get $attrs NAME] $chunks]
 }
-dict set tags /TMPL_LOOP parse _tmpl_loop_end_parse
+_tags_add /TMPL_LOOP parse _tmpl_loop_end_parse
 
 proc _tmpl_loop_apply {ctx chunk} {
 	set str ""
@@ -662,7 +661,7 @@ proc _tmpl_loop_apply {ctx chunk} {
 	}
 	return $str
 }
-dict set tags TMPL_LOOP apply _tmpl_loop_apply
+_tags_add TMPL_LOOP apply _tmpl_loop_apply
 
 ######################################################################
 # TMPL_IF handlers
@@ -672,14 +671,14 @@ proc _tmpl_if_parse {_tmpl attrs} {
 
 	__tmpl_ifunless_parse tmpl $attrs TMPL_IF
 }
-dict set tags TMPL_IF parse _tmpl_if_parse
+_tags_add TMPL_IF parse _tmpl_if_parse
 
 proc _tmpl_unless_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
 
 	__tmpl_ifunless_parse tmpl $attrs TMPL_UNLESS
 }
-dict set tags TMPL_UNLESS parse _tmpl_unless_parse
+_tags_add TMPL_UNLESS parse _tmpl_unless_parse
 
 proc __tmpl_ifunless_parse {_tmpl attrs tagname} {
 	upvar $_tmpl tmpl
@@ -697,21 +696,21 @@ proc _tmpl_else_parse {_tmpl attrs} {
 	_push_chunks tmpl {}
 	_push_priv tmpl [list "TMPL_ELSE"]
 }
-dict set tags TMPL_ELSE parse _tmpl_else_parse
+_tags_add TMPL_ELSE parse _tmpl_else_parse
 
 proc _tmpl_if_end_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
 
 	__tmpl_ifunless_end_parse tmpl $attrs TMPL_IF
 }
-dict set tags /TMPL_IF parse _tmpl_if_end_parse
+_tags_add /TMPL_IF parse _tmpl_if_end_parse
 
 proc _tmpl_unless_end_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
 
 	__tmpl_ifunless_end_parse tmpl $attrs TMPL_UNLESS
 }
-dict set tags /TMPL_UNLESS parse _tmpl_unless_end_parse
+_tags_add /TMPL_UNLESS parse _tmpl_unless_end_parse
 
 proc __tmpl_ifunless_end_parse {_tmpl attrs tagname} {
 	upvar $_tmpl tmpl
@@ -730,18 +729,19 @@ proc __tmpl_ifunless_end_parse {_tmpl attrs tagname} {
 
 	set chunks [_pop_chunks tmpl]
 	dict lappend tmpl chunks\
-	  [list "$tagname" [dict get $attrs NAME] $chunks $else_chunks]
+	  [list [_tag_idx [_tags_get_by_name $tagname]]\
+	    [dict get $attrs NAME] $chunks $else_chunks]
 }
 
 proc _tmpl_if_apply {ctx chunk} {
 	return [__tmpl_ifunless_apply $ctx $chunk 1]
 }
-dict set tags TMPL_IF apply _tmpl_if_apply
+_tags_add TMPL_IF apply _tmpl_if_apply
 
 proc _tmpl_unless_apply {ctx chunk} {
 	return [__tmpl_ifunless_apply $ctx $chunk 0]
 }
-dict set tags TMPL_UNLESS apply _tmpl_unless_apply
+_tags_add TMPL_UNLESS apply _tmpl_unless_apply
 
 proc __tmpl_ifunless_apply {ctx chunk std} {
 	set str ""
@@ -761,7 +761,6 @@ proc __tmpl_ifunless_apply {ctx chunk std} {
 	set elsechunks [lindex $chunk 3]
 	return [_apply [_ctx_level_down $ctx $elsechunks [_ctx_data_get $ctx]]]
 }
-
 
 }
 

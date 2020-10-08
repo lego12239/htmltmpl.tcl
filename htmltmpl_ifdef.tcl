@@ -28,7 +28,7 @@ proc _tmpl_ifdef_parse {_tmpl attrs} {
 	_push_chunks tmpl {}
 	_push_priv tmpl [list "TMPL_IFDEF" $attrs]
 }
-dict set tags TMPL_IFDEF parse _tmpl_ifdef_parse
+_tags_add TMPL_IFDEF parse _tmpl_ifdef_parse
 
 proc _tmpl_ifdef_end_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
@@ -47,9 +47,10 @@ proc _tmpl_ifdef_end_parse {_tmpl attrs} {
 
 	set chunks [_pop_chunks tmpl]
 	dict lappend tmpl chunks\
-	  [list "TMPL_IFDEF" [dict get $attrs NAME] $chunks $else_chunks]
+	  [list [_tag_idx [_tags_get_by_name TMPL_IFDEF]]\
+	    [dict get $attrs NAME] $chunks $else_chunks]
 }
-dict set tags /TMPL_IFDEF parse _tmpl_ifdef_end_parse
+_tags_add /TMPL_IFDEF parse _tmpl_ifdef_end_parse
 
 proc _tmpl_ifdef_apply {ctx chunk} {
 	set str ""
@@ -63,7 +64,7 @@ proc _tmpl_ifdef_apply {ctx chunk} {
 	set elsechunks [lindex $chunk 3]
 	return [_apply [_ctx_level_down $ctx $elsechunks [_ctx_data_get $ctx]]]
 }
-dict set tags TMPL_IFDEF apply _tmpl_ifdef_apply
+_tags_add TMPL_IFDEF apply _tmpl_ifdef_apply
 
 
 }
