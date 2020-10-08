@@ -17,6 +17,10 @@ package provide htmltmpl 0.10
 
 namespace eval htmltmpl {
 variable tags [dict create]
+# When we parse, we need access to tags by name.
+variable tags_by_name [dict create]
+# When we apply, we need access to tags by index.
+variable tags_by_idx [list]
 
 ######################################################################
 # UTILS
@@ -33,6 +37,69 @@ proc _pctenc_encode {str} {
 	}
 	return $res
 }
+
+######################################################################
+# TAGS UTILS
+######################################################################
+proc _tags_add {tagname hdlr_type hdlr} {
+	variable tags_by_name
+	variable tags_by_idx
+
+	switch $hdlr_type {
+		parse {
+			set tpidx 2
+		}
+		apply {
+			set tpidx 3
+		}
+		default {
+			error "wrong tag handler type: $hdlr_type"
+		}
+	}
+	if {[dict exists $tags_by_name $tagname]} {
+		set tag [dict get $tags_by_name $tagname]
+	} else {
+		set tag [list [llength $tags_by_idx] $tagname {} {}]
+	}
+	lset tag $tpidx $hdlr
+	dict set tags_by_name $tagname $tag
+	lset tags_by_idx [lindex $tag 0] $tag
+}
+
+proc _tags_exists {tagname} {
+	variable tags_by_name
+
+	return [dict exists $tags_by_name $tagname]
+}
+
+proc _tags_get_by_name {tagname} {
+	variable tags_by_name
+
+	return [dict get $tags_by_name $tagname]
+}
+
+proc _tags_get_by_idx {tagidx} {
+	variable tags_by_idx
+
+	return [lindex $tags_by_idx $tagidx]
+}
+
+proc _tag_idx {tag} {
+	return [lindex $tag 0]
+}
+
+proc _tag_name {tag} {
+	return [lindex $tag 1]
+}
+
+proc _tag_phdlr {tag} {
+	return [lindex $tag 2]
+}
+
+proc _tag_ahdlr {tag} {
+	return [lindex $tag 3]
+}
+
 
 ######################################################################
 # COMPILE ROUTINES
