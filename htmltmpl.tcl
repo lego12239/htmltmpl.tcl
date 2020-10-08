@@ -401,7 +401,7 @@ proc _apply {ctx} {
 	variable tags
 	set str ""
 
-	set chunks [_ctx_get_chunks $ctx]
+	set chunks [_ctx_chunks_get $ctx]
 	foreach chunk $chunks {
 		set type [lindex $chunk 0]
 		if {$type eq "TEXT"} {
@@ -417,15 +417,15 @@ proc _apply {ctx} {
 ######################################################################
 # APPLY UTILS
 ######################################################################
-proc _ctx_get_pval {ctx pname} {
+proc _ctx_pval_get {ctx pname} {
 	return [dict get [lindex $ctx 2] $pname]
 }
 
-proc _ctx_get_chunks {ctx} {
+proc _ctx_chunks_get {ctx} {
 	return [lindex $ctx 0]
 }
 
-proc _ctx_get_data {ctx {name ""} {defval ""}} {
+proc _ctx_data_get {ctx {name ""} {defval ""}} {
 	set idx [llength [lindex $ctx 1]]
 	incr idx -1
 	if {$name eq ""} {
@@ -436,7 +436,7 @@ proc _ctx_get_data {ctx {name ""} {defval ""}} {
 		if {[dict exists $data $name]} {
 			return [dict get $data $name]
 		}
-		if {(![_ctx_get_pval $ctx globalvars]) || ($idx == 0)} {
+		if {(![_ctx_pval_get $ctx globalvars]) || ($idx == 0)} {
 			break;
 		}
 		incr idx -1
@@ -515,7 +515,7 @@ dict set tags TMPL_VAR parse _tmpl_var_parse
 proc _tmpl_var_apply {ctx chunk} {
 	set name [lindex $chunk 1]
 	set defval [lindex $chunk 2]
-	set val [_ctx_get_data $ctx $name $defval]
+	set val [_ctx_data_get $ctx $name $defval]
 	switch [lindex $chunk 3] {
 		0 {
 		}
@@ -568,7 +568,7 @@ proc _tmpl_loop_apply {ctx chunk} {
 	set str ""
 
 	set name [lindex $chunk 1]
-	set ldata [_ctx_get_data $ctx $name]
+	set ldata [_ctx_data_get $ctx $name]
 	if {[llength $ldata] == 0} {
 		return ""
 	}
@@ -626,7 +626,7 @@ proc _tmpl_if_apply {ctx chunk} {
 	set str ""
 
 	set name [lindex $chunk 1]
-	set val [_ctx_get_data $ctx $name 0]
+	set val [_ctx_data_get $ctx $name 0]
 	if {$val eq ""} {
 		set val 0
 	}
@@ -635,10 +635,10 @@ proc _tmpl_if_apply {ctx chunk} {
 	}
 	if {$val} {
 		set ifchunks [lindex $chunk 2]
-		return [_apply [_ctx_level_down $ctx $ifchunks [_ctx_get_data $ctx]]]
+		return [_apply [_ctx_level_down $ctx $ifchunks [_ctx_data_get $ctx]]]
 	}
 	set elsechunks [lindex $chunk 3]
-	return [_apply [_ctx_level_down $ctx $elsechunks [_ctx_get_data $ctx]]]
+	return [_apply [_ctx_level_down $ctx $elsechunks [_ctx_data_get $ctx]]]
 }
 dict set tags TMPL_IF apply _tmpl_if_apply
 
