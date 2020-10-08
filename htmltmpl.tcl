@@ -594,17 +594,31 @@ proc _tmpl_if_parse {_tmpl attrs} {
 }
 dict set tags TMPL_IF parse _tmpl_if_parse
 
-proc _tmpl_if_end_parse {_tmpl attrs} {
+proc _tmpl_else_parse {_tmpl attrs} {
 	upvar $_tmpl tmpl
 
+	_push_chunks tmpl {}
+	_push_priv tmpl [list "TMPL_ELSE"]
+}
+dict set tags TMPL_ELSE parse _tmpl_else_parse
+
+proc _tmpl_if_end_parse {_tmpl attrs} {
+	upvar $_tmpl tmpl
+	set else_chunks {}
+
 	set priv [_pop_priv tmpl]
+	if {[lindex $priv 0] eq "TMPL_ELSE"} {
+		set else_chunks [_pop_chunks tmpl]
+		set priv [_pop_priv tmpl]
+	}
 	if {[lindex $priv 0] ne "TMPL_IF"} {
 		error "internal error(TMPL_IF: _priv corrupted: $priv)" "" HTMLTMPLERR
 	}
 	set attrs [lindex $priv 1]
 
 	set chunks [_pop_chunks tmpl]
-	dict lappend tmpl chunks [list "TMPL_IF" [dict get $attrs NAME] $chunks]
+	dict lappend tmpl chunks\
+	  [list "TMPL_IF" [dict get $attrs NAME] $chunks $else_chunks]
 }
 dict set tags /TMPL_IF parse _tmpl_if_end_parse
 
@@ -623,9 +637,11 @@ proc _tmpl_if_apply {ctx chunk} {
 		set ifchunks [lindex $chunk 2]
 		return [_apply [_ctx_level_down $ctx $ifchunks [_ctx_get_data $ctx]]]
 	}
-	return ""
+	set elsechunks [lindex $chunk 3]
+	return [_apply [_ctx_level_down $ctx $elsechunks [_ctx_get_data $ctx]]]
 }
 dict set tags TMPL_IF apply _tmpl_if_apply
+
 
 }
 

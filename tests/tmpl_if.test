@@ -6,13 +6,19 @@ tcltest::test tmpl_if-1.0 {
 	TMPL_IF empty
 } -body {
 	htmltmpl::compile_str "<TMPL_IF NAME=v1></TMPL_IF>"
-} -result {chunks {{TMPL_IF v1 {}}} prms {globalvars 0}}
+} -result {chunks {{TMPL_IF v1 {} {}}} prms {globalvars 0}}
 
 tcltest::test tmpl_if-1.1 {
 	TMPL_IF with text before and after
 } -body {
 	htmltmpl::compile_str "some <TMPL_IF NAME=v1>q<TMPL_VAR NAME=v2>w w</TMPL_IF> text"
-} -result {chunks {{TEXT {some }} {TMPL_IF v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}}} {TEXT { text}}} prms {globalvars 0}}
+} -result {chunks {{TEXT {some }} {TMPL_IF v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}} {}} {TEXT { text}}} prms {globalvars 0}}
+
+tcltest::test tmpl_if-1.2 {
+	TMPL_IF, TMPL_ELSE with text before and after
+} -body {
+	htmltmpl::compile_str "some <TMPL_IF NAME=v1>q<TMPL_VAR NAME=v2>w w<TMPL_ELSE>zxcv<TMPL_VAR NAME=v3>asdf</TMPL_IF> text"
+} -result {chunks {{TEXT {some }} {TMPL_IF v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}} {{TEXT zxcv} {TMPL_VAR v3 {} 0} {TEXT asdf}}} {TEXT { text}}} prms {globalvars 0}}
 
 tcltest::test tmpl_if-2.0 {
 	TMPL_IF apply with no var in data
@@ -20,6 +26,13 @@ tcltest::test tmpl_if-2.0 {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {}
 } -result {text  here}
+
+tcltest::test tmpl_if-2.1 {
+	TMPL_IF apply with no var in data(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {}
+} -result {text W here}
 
 tcltest::test tmpl_if-3.0 {
 	TMPL_IF apply with empty value
@@ -29,53 +42,109 @@ tcltest::test tmpl_if-3.0 {
 } -result {text  here}
 
 tcltest::test tmpl_if-3.1 {
+	TMPL_IF apply with empty value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 ""}
+} -result {text W here}
+
+tcltest::test tmpl_if-3.2 {
 	TMPL_IF apply with empty value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 0}
 } -result {text  here}
 
-tcltest::test tmpl_if-3.2 {
+tcltest::test tmpl_if-3.3 {
+	TMPL_IF apply with empty value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 0}
+} -result {text W here}
+
+tcltest::test tmpl_if-3.4 {
 	TMPL_IF apply with false value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 false}
 } -result {text  here}
 
-tcltest::test tmpl_if-3.3 {
+tcltest::test tmpl_if-3.5 {
+	TMPL_IF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 false}
+} -result {text W here}
+
+tcltest::test tmpl_if-3.6 {
 	TMPL_IF apply with false value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 fAlSe}
 } -result {text  here}
 
-tcltest::test tmpl_if-3.4 {
+tcltest::test tmpl_if-3.7 {
+	TMPL_IF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 fAlSe}
+} -result {text W here}
+
+tcltest::test tmpl_if-3.8 {
 	TMPL_IF apply with false value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 no}
 } -result {text  here}
 
-tcltest::test tmpl_if-3.5 {
+tcltest::test tmpl_if-3.9 {
+	TMPL_IF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 no}
+} -result {text W here}
+
+tcltest::test tmpl_if-3.10 {
 	TMPL_IF apply with false value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 nO}
 } -result {text  here}
 
-tcltest::test tmpl_if-3.6 {
+tcltest::test tmpl_if-3.11 {
+	TMPL_IF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 nO}
+} -result {text W here}
+
+tcltest::test tmpl_if-3.12 {
 	TMPL_IF apply with false value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 off}
 } -result {text  here}
 
-tcltest::test tmpl_if-3.7 {
+tcltest::test tmpl_if-3.13 {
+	TMPL_IF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 off}
+} -result {text W here}
+
+tcltest::test tmpl_if-3.14 {
 	TMPL_IF apply with false value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 oFf}
 } -result {text  here}
+
+tcltest::test tmpl_if-3.15 {
+	TMPL_IF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 oFf}
+} -result {text W here}
 
 tcltest::test tmpl_if-4.0 {
 	TMPL_IF apply with true value
@@ -85,51 +154,107 @@ tcltest::test tmpl_if-4.0 {
 } -result {text q here}
 
 tcltest::test tmpl_if-4.1 {
-	TMPL_IF apply with true value
+	TMPL_IF apply with true value(TMPL_ELSE)
 } -body {
-	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
-	htmltmpl::apply $tmpl {v1 2222}
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 1}
 } -result {text q here}
 
 tcltest::test tmpl_if-4.2 {
 	TMPL_IF apply with true value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
-	htmltmpl::apply $tmpl {v1 true}
+	htmltmpl::apply $tmpl {v1 2222}
 } -result {text q here}
 
 tcltest::test tmpl_if-4.3 {
-	TMPL_IF apply with true value
+	TMPL_IF apply with true value(TMPL_ELSE)
 } -body {
-	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
-	htmltmpl::apply $tmpl {v1 tRuE}
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 2222}
 } -result {text q here}
 
 tcltest::test tmpl_if-4.4 {
 	TMPL_IF apply with true value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
-	htmltmpl::apply $tmpl {v1 yes}
+	htmltmpl::apply $tmpl {v1 true}
 } -result {text q here}
 
 tcltest::test tmpl_if-4.5 {
-	TMPL_IF apply with true value
+	TMPL_IF apply with true value(TMPL_ELSE)
 } -body {
-	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
-	htmltmpl::apply $tmpl {v1 yEs}
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 true}
 } -result {text q here}
 
 tcltest::test tmpl_if-4.6 {
 	TMPL_IF apply with true value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
-	htmltmpl::apply $tmpl {v1 oN}
+	htmltmpl::apply $tmpl {v1 tRuE}
 } -result {text q here}
 
 tcltest::test tmpl_if-4.7 {
+	TMPL_IF apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 tRuE}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.8 {
 	TMPL_IF apply with true value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 yes}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.9 {
+	TMPL_IF apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 yes}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.10 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 yEs}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.11 {
+	TMPL_IF apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 yEs}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.12 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 oN}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.13 {
+	TMPL_IF apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 oN}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.14 {
+	TMPL_IF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 some}
+} -result {text q here}
+
+tcltest::test tmpl_if-4.15 {
+	TMPL_IF apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 some}
 } -result {text q here}
 
@@ -139,6 +264,20 @@ tcltest::test tmpl_if-5.0 {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_VAR NAME=v2>w</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 some v2 io}
 } -result {text qiow here}
+
+tcltest::test tmpl_if-5.1 {
+	TMPL_IF apply(check data context)(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_VAR NAME=v2>w<TMPL_ELSE><TMPL_VAR NAME=v3>E</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 some v2 io v3 KK}
+} -result {text qiow here}
+
+tcltest::test tmpl_if-5.2 {
+	TMPL_IF apply(check data context)(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_VAR NAME=v2>w<TMPL_ELSE><TMPL_VAR NAME=v3>E</TMPL_IF> here"]
+	htmltmpl::apply $tmpl {v1 "" v2 io v3 KK}
+} -result {text KKE here}
 
 tcltest::test tmpl_if-err-1.0 {
 	TMPL_IF compile err(no NAME)
