@@ -1,0 +1,218 @@
+lappend auto_path [pwd]/../
+package require tcltest
+package require htmltmpl
+package require htmltmpl_ifdef
+
+tcltest::test tmpl_ifdef-1.0 {
+	TMPL_IFDEF empty
+} -body {
+	htmltmpl::compile_str "<TMPL_IFDEF NAME=v1></TMPL_IFDEF>"
+} -result {chunks {{TMPL_IFDEF v1 {} {}}} prms {globalvars 0}}
+
+tcltest::test tmpl_ifdef-1.1 {
+	TMPL_IFDEF with text before and after
+} -body {
+	htmltmpl::compile_str "some <TMPL_IFDEF NAME=v1>q<TMPL_VAR NAME=v2>w w</TMPL_IFDEF> text"
+} -result {chunks {{TEXT {some }} {TMPL_IFDEF v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}} {}} {TEXT { text}}} prms {globalvars 0}}
+
+tcltest::test tmpl_ifdef-1.2 {
+	TMPL_IFDEF, TMPL_ELSE with text before and after
+} -body {
+	htmltmpl::compile_str "some <TMPL_IFDEF NAME=v1>q<TMPL_VAR NAME=v2>w w<TMPL_ELSE>zxcv<TMPL_VAR NAME=v3>asdf</TMPL_IFDEF> text"
+} -result {chunks {{TEXT {some }} {TMPL_IFDEF v1 {{TEXT q} {TMPL_VAR v2 {} 0} {TEXT {w w}}} {{TEXT zxcv} {TMPL_VAR v3 {} 0} {TEXT asdf}}} {TEXT { text}}} prms {globalvars 0}}
+
+tcltest::test tmpl_ifdef-2.0 {
+	TMPL_IFDEF apply with no var in data
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {}
+} -result {text  here}
+
+tcltest::test tmpl_ifdef-2.1 {
+	TMPL_IFDEF apply with no var in data(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {}
+} -result {text W here}
+
+tcltest::test tmpl_ifdef-3.0 {
+	TMPL_IF apply with empty value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 ""}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.1 {
+	TMPL_IFDEF apply with empty value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 ""}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.2 {
+	TMPL_IFDEF apply with empty value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 0}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.3 {
+	TMPL_IFDEF apply with empty value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 0}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.4 {
+	TMPL_IFDEF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 false}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.5 {
+	TMPL_IFDEF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 false}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.6 {
+	TMPL_IFDEF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 fAlSe}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.7 {
+	TMPL_IFDEF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 fAlSe}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.8 {
+	TMPL_IFDEF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 no}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.9 {
+	TMPL_IFDEF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 no}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.10 {
+	TMPL_IFDEF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 nO}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.11 {
+	TMPL_IFDEF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 nO}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.12 {
+	TMPL_IFDEF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 off}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.13 {
+	TMPL_IFDEF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 off}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.14 {
+	TMPL_IFDEF apply with false value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 oFf}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-3.15 {
+	TMPL_IFDEF apply with false value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 oFf}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-4.0 {
+	TMPL_IFDEF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 1}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-4.1 {
+	TMPL_IFDEF apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 1}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-4.2 {
+	TMPL_IFDEF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 2222}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-4.3 {
+	TMPL_IFDEF apply with true value(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_ELSE>W</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 2222}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-4.4 {
+	TMPL_IFDEF apply with true value
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 some}
+} -result {text q here}
+
+tcltest::test tmpl_ifdef-5.0 {
+	TMPL_IFDEF apply(check data context)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_VAR NAME=v2>w</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 some v2 io}
+} -result {text qiow here}
+
+tcltest::test tmpl_ifdef-5.1 {
+	TMPL_IFDEF apply(check data context)(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_VAR NAME=v2>w<TMPL_ELSE><TMPL_VAR NAME=v3>E</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v1 some v2 io v3 KK}
+} -result {text qiow here}
+
+tcltest::test tmpl_ifdef-5.2 {
+	TMPL_IF apply(check data context)(TMPL_ELSE)
+} -body {
+	set tmpl [htmltmpl::compile_str "text <TMPL_IFDEF NAME=v1>q<TMPL_VAR NAME=v2>w<TMPL_ELSE><TMPL_VAR NAME=v3>E</TMPL_IFDEF> here"]
+	htmltmpl::apply $tmpl {v2 io v3 KK}
+} -result {text KKE here}
+
+tcltest::test tmpl_ifdef-err-1.0 {
+	TMPL_IFDEF compile err(no NAME)
+} -body {
+	htmltmpl::compile_str "text <TMPL_IFDEF NAM = v1></TMPL_IFDEF> here"
+} -returnCodes error -result "at line 1: TMPL_IFDEF: NAME is missed"
+
+tcltest::test tmpl_ifdef-err-2.0 {
+	TMPL_IFDEF compile err(close tag mismatch)
+} -body {
+	htmltmpl::compile_str "text <TMPL_LOOP NAME = v1></TMPL_IFDEF> here"
+} -returnCodes error -result "at line 1: /TMPL_IFDEF: there was 'TMPL_LOOP' tag instead of TMPL_IFDEF"
+
+tcltest::cleanupTests
