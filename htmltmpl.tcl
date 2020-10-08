@@ -444,6 +444,22 @@ proc _ctx_data_get {ctx {name ""} {defval ""}} {
 	return $defval
 }
 
+proc _ctx_data_exists {ctx name} {
+	set idx [llength [lindex $ctx 1]]
+	incr idx -1
+	while 1 {
+		set data [lindex $ctx 1 $idx]
+		if {[dict exists $data $name]} {
+			return 1
+		}
+		if {(![_ctx_pval_get $ctx globalvars]) || ($idx == 0)} {
+			break;
+		}
+		incr idx -1
+	}
+	return 0
+}
+
 proc _ctx_level_down {ctx chunks data} {
 	return [list $chunks [lreplace [lindex $ctx 1] end+1 end+1 $data]\
 	  [lindex $ctx 2]]
