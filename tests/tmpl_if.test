@@ -49,14 +49,14 @@ tcltest::test tmpl_if-3.1 {
 } -result {text W here}
 
 tcltest::test tmpl_if-3.2 {
-	TMPL_IF apply with empty value
+	TMPL_IF apply with 0 value
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 0}
 } -result {text  here}
 
 tcltest::test tmpl_if-3.3 {
-	TMPL_IF apply with empty value(TMPL_ELSE)
+	TMPL_IF apply with 0 value(TMPL_ELSE)
 } -body {
 	set tmpl [htmltmpl::compile_str "text <TMPL_IF NAME=v1>q<TMPL_ELSE>W</TMPL_IF> here"]
 	htmltmpl::apply $tmpl {v1 0}
