@@ -90,4 +90,10 @@ tcltest::test tmpl_loop-err-1.0 {
 	htmltmpl::compile_str "text <TMPL_LOOP NAM = v1></TMPL_LOOP> here"
 } -returnCodes error -result "at line 1: TMPL_LOOP: NAME is missed"
 
+tcltest::test tmpl_loop-err-2.0 {
+	TMPL_LOOP compile err(close tag mismatch)
+} -body {
+	htmltmpl::compile_str "text <TMPL_VAR NAME = v1></TMPL_LOOP> here"
+} -returnCodes error -result "at line 1: /TMPL_LOOP: there was '' tag instead of TMPL_LOOP"
+
 tcltest::cleanupTests

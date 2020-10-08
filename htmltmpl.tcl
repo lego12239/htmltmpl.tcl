@@ -555,7 +555,8 @@ proc _tmpl_loop_end_parse {_tmpl attrs} {
 
 	set priv [_pop_priv tmpl]
 	if {[lindex $priv 0] ne "TMPL_LOOP"} {
-		error "internal error(TMPL_LOOP: _priv corrupted: $priv)" "" HTMLTMPLERR
+		error "/TMPL_LOOP: there was '[lindex $priv 0]' tag\
+		  instead of TMPL_LOOP" "" HTMLTMPLERR
 	}
 	set attrs [lindex $priv 1]
 
