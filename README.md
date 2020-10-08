@@ -7,11 +7,14 @@ Synopsis
 ========
 <TMPL_VAR NAME=var_key_name [DEFAULT=value] [ESCAPE=NONE|HTML|JS|URI]>
 <TMPL_LOOP NAME=list_key_name>...</TMPL_LOOP>
-<TMPL_IF NAME=var_key_name>...</TMPL_IF>
+<TMPL_IF NAME=var_key_name>...<TMPL_ELSE>...</TMPL_IF>
+
+with htmltmpl_ifdef package:
+<TMPL_IFDEF NAME=var_key_name>...<TMPL_ELSE>...</TMPL_IF>
 
 Template tags
 =============
-core:
+htmltmpl:
   TMPL_VAR
       <TMPL_VAR NAME=var_key_name>
       <TMPL_VAR NAME=var_key_name DEFAULT=value>
@@ -36,10 +39,17 @@ core:
       substitution as expected.
 
   TMPL_IF
-      <TMPL_IF NAME=var_key_name>...</TMPL_IF>
+      <TMPL_IF NAME=var_key_name>...<TMPL_ELSE>...</TMPL_IF>
 
-      A content of this element is not included in the output if:
+      A content of TMPL_ELSE is included in the output if:
       - var_key_name key isn't exist in a data dict
       - value of a key is an empty string
       - value of a key is a false boolean value(according to Tcl_GetDouble)
-      In other case a content is included in the output.
+      In other case a content of TMPL_IF is included in the output.
+
+htmltmpl_ifdef:
+  TMPL_IFDEF
+      <TMPL_IFDEF NAME=var_key_name>...<TMPL_ELSE>...</TMPL_IF>
+
+      A content of TMPL_IF is included in the output if var_key_name key is
+      exist in a data dict, otherwise a content of TMPL_ELSE is included instead.
