@@ -472,7 +472,7 @@ proc _apply {ctx} {
 		if {$type eq "TEXT"} {
 			append str [lindex $chunk 1]
 		} else {
-			append str [[_tag_ahdlr [_tags_get_by_idx $type]] $ctx $chunk]
+			append str [[lindex [_tags_get_by_idx $type] 3] $ctx $chunk]
 		}
 	}
 
