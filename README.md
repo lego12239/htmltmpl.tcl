@@ -12,6 +12,11 @@ Synopsis
 with htmltmpl_ifdef package:
 <TMPL_IFDEF NAME=var_key_name>...<TMPL_ELSE>...</TMPL_IF>
 
+Description
+===========
+If a tag attribute value contains whitespace char, =, " or >, then
+it must be enclosed in double quotes.
+
 Template tags
 =============
 htmltmpl:
