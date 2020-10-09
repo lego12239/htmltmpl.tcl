@@ -57,21 +57,9 @@ tcltest::test err-5.1 {
 } -returnCodes error -result "at line 1: want tag attribute value, but got '>'#5"
 
 tcltest::test err-6.0 {
-	compile err: wrong token inside TMPL_VAR
+	compile err: wrong char inside TMPL_VAR var name
 } -body {
-	htmltmpl::compile_str "<TMPL_VAR <=v1>"
-} -returnCodes error -result "at line 1: want tag attribute name, but got '<=v1>'"
-
-tcltest::test err-6.1 {
-	compile err: wrong token inside TMPL_VAR
-} -body {
-	htmltmpl::compile_str "<TMPL_VAR NAME*v1>"
-} -returnCodes error -result "at line 1: want '=' char, but got '*v1>'"
-
-tcltest::test err-6.2 {
-	compile err: wrong token inside TMPL_VAR
-} -body {
-	htmltmpl::compile_str "<TMPL_VAR NAME=*>"
-} -returnCodes error -result "at line 1: want tag attribute value, but got '*>'"
+	htmltmpl::compile_str "<TMPL_VAR NAME=v\"1>"
+} -returnCodes error -result "at line 1: want tag attribute name, but got '\"1>'"
 
 tcltest::cleanupTests

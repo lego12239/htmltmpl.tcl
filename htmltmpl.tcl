@@ -320,7 +320,7 @@ proc _get_tok {_ctx} {
 						set tok 3
 						set str =
 					}
-					{^[A-Za-z0-9_-]+} {
+					{^[^\s=">]+} {
 						set tok 2
 						set str [lindex $mstr 0]
 					}
