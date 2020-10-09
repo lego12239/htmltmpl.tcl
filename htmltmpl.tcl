@@ -156,7 +156,6 @@ proc _compile {ctx_init} {
 		set linfo "at line [dict get $ctx lineno]: "
 		error "${linfo}$tmpl" "${linfo}$::errorInfo" $::errorCode
 	}
-	dict set tmpl prms [dict get $ctx prms]
 	return $tmpl
 }
 
@@ -167,7 +166,8 @@ proc _parse {_ctx} {
 	set tmpl [dict create\
 	  _priv {}\
 	  _chunks_stack {}\
-	  chunks {}]
+	  chunks {}\
+	  prms [dict get $ctx prms]]
 	set errmsg_wrongtok {
 	  1 "want tag attribute name"
 	  2 "want '=' char"
