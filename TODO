@@ -5,3 +5,4 @@
 - добавить опцию case-insensitive ?
 - сделать apply_ - который будет выдавать результат частями через yeild.
 - add TMPL_IFNDEF
+- concatenate neighbour TEXT chunks
