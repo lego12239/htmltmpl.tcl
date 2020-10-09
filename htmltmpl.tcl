@@ -45,8 +45,12 @@ proc _pctenc_encode {str} {
 #   compiled template
 proc compile_file {args} {
 	set ctx [_mk_ctx_from_args $args]
+	return [_compile_file [dict get $ctx src] $ctx]
+}
+
+proc _compile_file {fname ctx} {
 	dict set ctx gets_r [namespace current]::gets_from_fh
-	set fh [open [dict get $ctx src]]
+	set fh [open $fname]
 	dict set ctx src $fh
 	set err ""
 	if {[catch {_compile $ctx} tmpl]} {
