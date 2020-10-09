@@ -1,0 +1,4 @@
+some <TMPL_LOOP NAME=v1>q</TMPL_LOOP> text
+<TMPL_VAR NAME=v2>
+<TMPL_INCLUDE FILE=test.inc1.template>
+<TMPL_VAR NAME=v3>

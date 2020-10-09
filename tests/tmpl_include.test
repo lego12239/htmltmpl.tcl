@@ -1,0 +1,36 @@
+lappend auto_path [pwd]/../
+package require tcltest
+package require htmltmpl
+
+tcltest::test tmpl_include-1.0 {
+	TMPL_INCLUDE single
+} -body {
+	htmltmpl::compile_str "outer <TMPL_INCLUDE FILE=test.inc1.template> text"
+} -result {chunks {{TEXT {outer }} {TEXT {some }} {TMPL_LOOP v1 {{TEXT q}}} {TEXT { text}} {TEXT {
+}} {TMPL_VAR v2 {} 0} {TEXT {
+}} {TMPL_VAR v3 {} 0} {TEXT { text}}} prms {globalvars 0}}
+
+tcltest::test tmpl_include-2.0 {
+	TMPL_INCLUDE recursive
+} -body {
+	htmltmpl::compile_str "outer <TMPL_INCLUDE FILE=test.inc2.template> text"
+} -result {chunks {{TEXT {outer }} {TEXT {some }} {TMPL_LOOP v1 {{TEXT q}}} {TEXT { text}} {TEXT {
+}} {TMPL_VAR v2 {} 0} {TEXT {
+}} {TEXT {some }} {TMPL_LOOP v1 {{TEXT q}}} {TEXT { text}} {TEXT {
+}} {TMPL_VAR v2 {} 0} {TEXT {
+}} {TMPL_VAR v3 {} 0} {TEXT {
+}} {TMPL_VAR v3 {} 0} {TEXT { text}}} prms {globalvars 0}}
+
+tcltest::test tmpl_include-err-1.0 {
+	TMPL_INCLUDE compile err(no FILE)
+} -body {
+	htmltmpl::compile_str "text <TMPL_INCLUDE FIL = v1> here"
+} -returnCodes error -result "at line 1: TMPL_INCLUDE: FILE is missed"
+
+tcltest::test tmpl_include-err-2.0 {
+	TMPL_INCLUDE compile err(no such file)
+} -body {
+	htmltmpl::compile_str "text <TMPL_INCLUDE FILE = non-existent.SOURCE.FILE> here"
+} -returnCodes error -result "at line 1: TMPL_INCLUDE: couldn't open \"non-existent.SOURCE.FILE\": no such file or directory"
+
+tcltest::cleanupTests

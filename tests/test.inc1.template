@@ -1,0 +1,3 @@
+some <TMPL_LOOP NAME=v1>q</TMPL_LOOP> text
+<TMPL_VAR NAME=v2>
+<TMPL_VAR NAME=v3>

@@ -8,6 +8,7 @@ Synopsis
 <TMPL_VAR NAME=var_key_name [DEFAULT=value] [ESCAPE=NONE|HTML|JS|URI]>
 <TMPL_LOOP NAME=list_key_name>...</TMPL_LOOP>
 <TMPL_IF NAME=var_key_name>...<TMPL_ELSE>...</TMPL_IF>
+<TMPL_INCLUDE FILE=file_name>
 
 with htmltmpl_ifdef package:
 <TMPL_IFDEF NAME=var_key_name>...<TMPL_ELSE>...</TMPL_IF>
@@ -52,7 +53,13 @@ htmltmpl:
       - value of a key is a false boolean value(according to Tcl_GetDouble)
       In other case a content of TMPL_IF is included in the output.
 
-htmltmpl_ifdef:
+  TMPL_INCLUDE
+      <TMPL_INCLUDE FILE=file_name>
+
+      A content of file_name file is compiled(on parse stage) and it is saved in
+      the resulting compiled template instead of this tag.
+
+ htmltmpl_ifdef:
   TMPL_IFDEF
       <TMPL_IFDEF NAME=var_key_name>...<TMPL_ELSE>...</TMPL_IF>
 

@@ -699,6 +699,25 @@ proc __tmpl_ifunless_apply {ctx chunk std} {
 	return [_apply [_ctx_level_down $ctx $elsechunks [_ctx_data_get $ctx]]]
 }
 
+######################################################################
+# TMPL_INCLUDE handlers
+######################################################################
+proc _tmpl_include_parse {_tmpl attrs} {
+	upvar $_tmpl tmpl
+
+	if {![dict exists $attrs FILE]} {
+		error "TMPL_INCLUDE: FILE is missed" "" HTMLTMPLERR
+	}
+
+	set nctx [dict create prms [dict get $tmpl prms]]
+	if {[catch {_compile_file [dict get $attrs FILE] $nctx} ntmpl]} {
+		set ntmpl "TMPL_INCLUDE: $ntmpl"
+		error $ntmpl $::errorInfo $::errorCode
+	}
+
+	dict lappend tmpl chunks {*}[dict get $ntmpl chunks]
+}
+dict set tags TMPL_INCLUDE parse _tmpl_include_parse
 
 }
 
