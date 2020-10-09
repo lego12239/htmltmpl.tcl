@@ -321,11 +321,7 @@ proc _parse {_ctx} {
 proc _chunk_add {_tmpl type data} {
 	upvar $_tmpl tmpl
 
-	if {$type eq "TEXT"} {
-		dict lappend tmpl chunks [list "TEXT" $data]
-	} else {
-		[_tag_phdlr [_tags_get_by_name $type]] tmpl $data
-	}
+	[_tag_phdlr [_tags_get_by_name $type]] tmpl $data
 }
 
 # Get a next token.
@@ -469,11 +465,7 @@ proc _apply {ctx} {
 	set chunks [_ctx_chunks_get $ctx]
 	foreach chunk $chunks {
 		set type [lindex $chunk 0]
-		if {$type eq "TEXT"} {
-			append str [lindex $chunk 1]
-		} else {
-			append str [[_tag_ahdlr [_tags_get_by_idx $type]] $ctx $chunk]
-		}
+		append str [[_tag_ahdlr [_tags_get_by_idx $type]] $ctx $chunk]
 	}
 
 	return $str
@@ -562,6 +554,21 @@ proc _pop_priv {_tmpl} {
 	dict set tmpl _priv [lrange [dict get $tmpl _priv] 0 end-1]
 	return $priv
 }
+
+######################################################################
+# TEXT handlers
+######################################################################
+proc _text_parse {_tmpl attrs} {
+	upvar $_tmpl tmpl
+
+	dict lappend tmpl chunks [list [_tag_idx [_tags_get_by_name TEXT]] $attrs]
+}
+_tags_add TEXT parse _text_parse
+
+proc _text_apply {ctx chunk} {
+	return [lindex $chunk 1]
+}
+_tags_add TEXT apply _text_apply
 
 ######################################################################
 # TMPL_VAR handlers
