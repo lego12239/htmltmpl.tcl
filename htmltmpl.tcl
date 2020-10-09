@@ -465,7 +465,7 @@ proc _apply {ctx} {
 	set chunks [_ctx_chunks_get $ctx]
 	foreach chunk $chunks {
 		set type [lindex $chunk 0]
-		append str [[_tag_ahdlr [_tags_get_by_idx $type]] $ctx $chunk]
+		append str [[lindex [_tags_get_by_idx $type] 3] $ctx $chunk]
 	}
 
 	return $str
