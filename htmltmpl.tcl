@@ -144,10 +144,10 @@ proc _compile {ctx_init} {
 	#   sect - a current section(hierarchy level name)
 	#   p_hd - a hierarchy delimeter characters for key names
 	set ctx_def [dict create\
-	  lineno 0\
-	  buf ""\
-	  state 0\
-	  prms {globalvars 0}]
+		lineno 0\
+		buf ""\
+		state 0\
+		prms {globalvars 0}]
 	set ctx [dict merge $ctx_def $ctx_init]
 	dict set ctx prms [dict merge [dict get $ctx_def prms]\
 	  [dict get $ctx_init prms]]
