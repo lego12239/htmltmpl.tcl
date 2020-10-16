@@ -5,6 +5,7 @@ HTML::Template. The goal is to separate code and markup.
 
 Synopsis
 ========
+
 htmltmpl::compile_file [-globalvars] FILENAME
 htmltmpl::compile_fh [-globalvars] CHAN
 htmltmpl::compile_str [-globalvars] STRING
