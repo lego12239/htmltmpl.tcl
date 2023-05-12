@@ -502,6 +502,12 @@ proc _pop_priv {_tmpl} {
 	return $priv
 }
 
+proc _get_priv {_tmpl} {
+	upvar $_tmpl tmpl
+
+	return [lindex [dict get $tmpl _priv] end]
+}
+
 ######################################################################
 # TMPL_VAR handlers
 ######################################################################
