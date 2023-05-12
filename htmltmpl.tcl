@@ -34,6 +34,30 @@ proc _pctenc_encode {str} {
 	return $res
 }
 
+proc _escape_val {val mode} {
+	switch $mode {
+		0 {
+		}
+		1 {
+			# &, <, > - for any places
+			# ", ' - for element attributes
+			set val [string map {& &amp; < &lt; > &gt; \" &quot; \' &#39;}\
+			  $val]
+		}
+		2 {
+			set val [string map {\\ \\\\ \' \\' \" \\\" \n \\n \r \\r} $val]
+		}
+		3 {
+			set val [_pctenc_encode [encoding convertto utf-8 $val]]
+		}
+		default {
+			error "ESCAPE code is wrong: $mode"
+		}
+	}
+
+	return $val
+}
+
 ######################################################################
 # COMPILE ROUTINES
 ######################################################################
@@ -542,22 +566,7 @@ proc _tmpl_var_apply {ctx chunk} {
 	set name [lindex $chunk 1]
 	set defval [lindex $chunk 2]
 	set val [_ctx_data_get $ctx $name $defval]
-	switch [lindex $chunk 3] {
-		0 {
-		}
-		1 {
-			# &, <, > - for any places
-			# ", ' - for element attributes
-			set val [string map {& &amp; < &lt; > &gt; \" &quot; \' &#39;}\
-			  $val]
-		}
-		2 {
-			set val [string map {\\ \\\\ \' \\' \" \\\" \n \\n \r \\r} $val]
-		}
-		3 {
-			set val [_pctenc_encode [encoding convertto utf-8 $val]]
-		}
-	}
+	set val [_escape_val $val [lindex $chunk 3]]
 	return $val
 }
 dict set tags TMPL_VAR apply _tmpl_var_apply
